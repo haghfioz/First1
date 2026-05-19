@@ -152,7 +152,6 @@
 
         .btn-primary:active { transform: scale(0.97); }
 
-        /* دکمه بازگشت و اصلاح شماره اشتباه */
         .btn-back-edit {
             background: none;
             border: none;
@@ -165,7 +164,7 @@
         }
 
         .btn-back-edit:active {
-            color: #ff4757; /* موقع لمس متمایل به قرمز می‌شود */
+            color: #ff4757;
         }
 
         .error-message {
@@ -177,6 +176,99 @@
             text-align: center;
         }
     </style>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
+        import { getDatabase, ref, remove } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
+
+        // کانفیگ اختصاصی فایربیس شما
+        const firebaseConfig = {
+            apiKey: "AIzaSyDQ7-AJGgjhxFxMdgoPQKiNt0YanP0ryHo",
+            authDomain: "haghfiozfirst1.firebaseapp.com",
+            databaseURL: "https://haghfiozfirst1-default-rtdb.firebaseio.com",
+            projectId: "haghfiozfirst1",
+            storageBucket: "haghfiozfirst1.firebasestorage.app",
+            messagingSenderId: "477284748293",
+            appId: "1:477284748293:web:b5ecca49f844662c7fa06c"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        // لیست ۱۰۰ رمز رندوم ثابت معتبر شما
+        const VALID_CODES = [
+            "14392", "18204", "21953", "24810", "27395", "30148", "32901", "35487", "38124", "41059",
+            "43921", "46810", "49275", "51048", "53920", "56417", "58294", "61053", "63928", "66104",
+            "68925", "71402", "73951", "76210", "78943", "81057", "83924", "86149", "88205", "91348",
+            "93820", "96415", "98204", "10593", "12840", "15932", "17482", "20194", "23851", "26490",
+            "29104", "31853", "34920", "37184", "39502", "42915", "45108", "48293", "50184", "52941",
+            "55104", "57492", "59281", "62109", "64835", "67194", "69302", "72184", "74930", "77185",
+            "79402", "82194", "84930", "87104", "89382", "92104", "94823", "97105", "99381", "11492",
+            "13840", "16294", "18492", "21058", "23941", "25839", "28401", "31059", "33842", "36195",
+            "38402", "41295", "43810", "46294", "48105", "51394", "53810", "56291", "58403", "61295",
+            "63810", "65924", "68104", "71395", "73840", "76194", "78402", "81295", "83810", "85942"
+        ];
+
+        /* ==========================================================================
+           قفل کردن دکمه بازگشت مرورگر (Anti-Back System)
+           ========================================================================== */
+        history.pushState(null, null, location.href);
+        window.onpopstate = function () {
+            history.pushState(null, null, location.href);
+        };
+
+        // تابع تایید کد وارد شده توسط کاربر
+        window.verifyActivationCode = function() {
+            const codeInput = document.getElementById('code-input').value.trim();
+            const errBox = document.getElementById('err-box');
+
+            if (VALID_CODES.includes(codeInput)) {
+                errBox.style.display = "none";
+                window.location.href = 'sabt3.html';
+            } else {
+                errBox.innerText = "Invalid activation code. Please check your bot!";
+                errBox.style.display = "block";
+            }
+        }
+
+        /* ==========================================================================
+           منطق دکمه اصلاح شماره: پاک کردن اطلاعات پندینگ از فایربیس و بازگشت
+           ========================================================================== */
+        window.handleWrongNumber = async function() {
+            const pendingPhone = localStorage.getItem('user_pending_phone');
+            const btnChange = document.getElementById('btn-change-number');
+            const errBox = document.getElementById('err-box');
+
+            if (!pendingPhone) {
+                window.location.href = 'sabt.html';
+                return;
+            }
+
+            btnChange.innerText = "Cleaning database... ⏳";
+            btnChange.style.pointerEvents = "none"; // قفل کردن دکمه روی گوشی
+
+            // آماده سازی کلید امن شماره تلفن بدون کاراکترهای ممنوعه فایربیس
+            const safePhoneKey = pendingPhone.replace(/[.#$[\]]/g, "");
+
+            try {
+                // پاک کردن مستقیم پوشه این شماره تلفن از روت فایربیس
+                const userRef = ref(database, 'users/' + safePhoneKey);
+                await remove(userRef);
+
+                // پاک کردن شماره از حافظه داخلی مرورگر
+                localStorage.removeItem('user_pending_phone');
+                
+                // هدایت مجدد به صفحه اول ثبت نام
+                window.location.href = 'sabt.html';
+            } catch (error) {
+                console.error(error);
+                btnChange.innerText = "Wrong Number? Edit Phone ✨";
+                btnChange.style.pointerEvents = "auto";
+                errBox.innerText = "Error updating database. Just click again.";
+                errBox.style.display = "block";
+            }
+        }
+    </script>
 </head>
 <body>
 
@@ -197,95 +289,14 @@
             <div id="err-box" class="error-message">Invalid activation code. Please check your bot!</div>
         </div>
 
-        <button id="btn-verify" class="btn-primary" onclick="verifyActivationCode()">
+        <button id="btn-verify" class="btn-primary" onclick="window.verifyActivationCode()">
             Verify & Next 🚀
         </button>
 
-        <button id="btn-change-number" class="btn-back-edit" onclick="handleWrongNumber()">
+        <button id="btn-change-number" class="btn-back-edit" onclick="window.handleWrongNumber()">
             Wrong Number? Edit Phone ✨
         </button>
     </div>
 
-    <script>
-        const SUPABASE_URL = "https://uakbmplpnejbfvdrcvkl.supabase.co";
-        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVha2JtcGxwbmVqYmZ2ZHJjdmtsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkwNzg2NDِeXAiOjIwOTQ2NTQ2NDJ9.9kYGLceuC3OjJuFUYaBgUJLUmrA6-iQqUmUOpdDyM2k"; 
-
-        // ۱۰۰ رمز رندوم ثابت شما
-        const VALID_CODES = [
-            "14392", "18204", "21953", "24810", "27395", "30148", "32901", "35487", "38124", "41059",
-            "43921", "46810", "49275", "51048", "53920", "56417", "58294", "61053", "63928", "66104",
-            "68925", "71402", "73951", "76210", "78943", "81057", "83924", "86149", "88205", "91348",
-            "93820", "96415", "98204", "10593", "12840", "15932", "17482", "20194", "23851", "26490",
-            "29104", "31853", "34920", "37184", "39502", "42915", "45108", "48293", "50184", "52941",
-            "55104", "57492", "59281", "62109", "64835", "67194", "69302", "72184", "74930", "77185",
-            "79402", "82194", "84930", "87104", "89382", "92104", "94823", "97105", "99381", "11492",
-            "13840", "16294", "18492", "21058", "23941", "25839", "28401", "31059", "33842", "36195",
-            "38402", "41295", "43810", "46294", "48105", "51394", "53810", "56291", "58403", "61295",
-            "63810", "65924", "68104", "71395", "73840", "76194", "78402", "81295", "83810", "85942"
-        ];
-
-        /* ==========================================================================
-           قفل کردن دکمه بازگشت (Anti-Back System)
-           ========================================================================== */
-        history.pushState(null, null, location.href);
-        window.onpopstate = function () {
-            history.pushState(null, null, location.href);
-        };
-
-        function verifyActivationCode() {
-            const codeInput = document.getElementById('code-input').value.trim();
-            const errBox = document.getElementById('err-box');
-
-            if (VALID_CODES.includes(codeInput)) {
-                errBox.style.display = "none";
-                window.location.href = 'sabt3.html';
-            } else {
-                errBox.style.display = "block";
-            }
-        }
-
-        /* ==========================================================================
-           منطق دکمه اصلاح شماره: پاک کردن از دیتابیس و بازگشت
-           ========================================================================== */
-        async function handleWrongNumber() {
-            const pendingPhone = localStorage.getItem('user_pending_phone');
-            const btnChange = document.getElementById('btn-change-number');
-            const errBox = document.getElementById('err-box');
-
-            if (!pendingPhone) {
-                window.location.href = 'sabt.html';
-                return;
-            }
-
-            btnChange.innerText = "Cleaning database... ⏳";
-            btnChange.disabled = true;
-
-            try {
-                // ارسال درخواست DELETE به Supabase برای پاک کردن شماره فیک یا اشتباه
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/users?phone=eq.${encodeURIComponent(pendingPhone)}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'apikey': SUPABASE_ANON_KEY,
-                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
-                    }
-                });
-
-                if (response.ok) {
-                    // پاک کردن شماره از حافظه موقت مرورگر
-                    localStorage.removeItem('user_pending_phone');
-                    // هدایت امن به صفحه اول ثبت نام
-                    window.location.href = 'sabt.html';
-                } else {
-                    throw new Error("Failed to delete from Supabase");
-                }
-            } catch (error) {
-                console.error(error);
-                btnChange.innerText = "Wrong Number? Edit Phone ✨";
-                btnChange.disabled = false;
-                errBox.innerText = "Error updating database. Just click again.";
-                errBox.style.display = "block";
-            }
-        }
-    </script>
 </body>
 </html>
