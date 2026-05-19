@@ -9,10 +9,9 @@
     <style>
         /* ==========================================================================
            RESET & BASE STYLES
-           ========================================================================== */
+           ========================================================================= */
         * {
-            margin: 0;
-            padding: 0;
+            margin: 0; padding: 0;
             box-sizing: border-box;
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             -webkit-tap-highlight-color: transparent;
@@ -32,96 +31,64 @@
 
         .glow-effect {
             position: absolute;
-            width: 350px;
-            height: 350px;
-            background: radial-gradient(circle, rgba(212, 175, 55, 0.08) 0%, rgba(0,0,0,0) 70%);
-            top: 50%;
-            left: 50%;
+            width: 350px; height: 350px;
+            background: radial-gradient(circle, rgba(212, 175, 55, 0.06) 0%, rgba(0,0,0,0) 70%);
+            top: 50%; left: 50%;
             transform: translate(-50%, -50%);
-            z-index: 1;
-            pointer-events: none;
+            z-index: 1; pointer-events: none;
         }
 
         /* ==========================================================================
-           HEADER SYSTEM (هدر امن لوکس)
+           HEADER SYSTEM (هدر امن و لوکس)
            ========================================================================== */
         header {
-            position: relative;
-            z-index: 10;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px 16px;
+            position: relative; z-index: 10;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 16px 16px 20px 16px;
             background: rgba(255, 255, 255, 0.02);
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(10px);
         }
 
         .user-info {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
+            display: flex; flex-direction: column; gap: 4px;
         }
 
-        .user-phone {
-            font-size: 14px;
-            font-weight: 700;
-            color: #ffffff;
-            letter-spacing: 0.5px;
-        }
+        .user-phone { font-size: 14px; font-weight: 700; color: #ffffff; }
 
         .btn-logout {
-            background: none;
-            border: none;
-            color: #ff4757;
-            font-size: 12px;
-            font-weight: 700;
-            cursor: pointer;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            background: none; border: none;
+            color: #ff4757; font-size: 11px; font-weight: 700;
+            cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px;
             text-align: left;
         }
 
         .coin-counter-box {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(255, 255, 255, 0.04);
-            padding: 8px 14px;
-            border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex; align-items: center; gap: 10px;
+            background: rgba(255, 255, 255, 0.03);
+            padding: 8px 16px; border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.07);
         }
 
-        .coin-amount {
-            font-size: 18px;
-            font-weight: 700;
-            color: #ffe066;
-        }
+        .coin-amount { font-size: 20px; font-weight: 700; color: #ffe066; }
 
-        /* المان سکه کوچک هدر */
-        .mini-coin {
-            width: 22px;
-            height: 22px;
+        /* سکه هدر با مربع اختصاصی */
+        .header-coin {
+            width: 22px; height: 22px;
             background: linear-gradient(135deg, #ffe066 0%, #d4af37 50%, #aa841b 100%);
             border-radius: 50%;
             border: 1px solid #ffe066;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            display: flex; justify-content: center; align-items: center;
+            box-shadow: inset 0 0 4px rgba(0,0,0,0.3);
         }
-        .mini-square {
-            width: 8px;
-            height: 8px;
-            border: 1px solid #000000;
-        }
+        .header-square { width: 8px; height: 8px; border: 1.5px solid #000000; }
 
         /* ==========================================================================
-           PLAYGROUND (محیط پرواز و جابجایی سکه‌ها)
+           PLAYGROUND (محیط پرواز و شکار سکه‌ها)
            ========================================================================== */
         .playground {
             flex: 1;
-            position: relative;
-            z-index: 5;
+            position: relative; z-index: 5;
             margin: 15px;
             background: rgba(255, 255, 255, 0.01);
             border: 1px solid rgba(255, 255, 255, 0.03);
@@ -129,20 +96,17 @@
             overflow: hidden;
         }
 
-        /* ساختار ۳ سکه متحرک در صفحه بازی */
+        /* ساختار سکه متحرک */
         .game-coin {
             position: absolute;
-            width: 55px;
-            height: 55px;
+            width: 60px; height: 60px;
             background: linear-gradient(135deg, #ffe066 0%, #d4af37 50%, #aa841b 100%);
             border-radius: 50%;
-            border: 2.5px solid #ffe066;
-            box-shadow: 0 0 15px rgba(212, 175, 55, 0.4), inset 0 0 5px rgba(0,0,0,0.3);
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            border: 3px solid #ffe066;
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.35), inset 0 0 6px rgba(0,0,0,0.3);
+            display: flex; justify-content: center; align-items: center;
             cursor: pointer;
-            transition: all 1.2s ease-in-out; /* سرعت بالانس جابجایی */
+            transition: all 1.5s ease-in-out;
             z-index: 6;
             transform: scale(1);
         }
@@ -152,9 +116,10 @@
             transition: transform 0.05s ease;
         }
 
+        /* آیکون مربع داخلی سکه بازی */
         .game-square {
-            width: 18px;
-            height: 18px;
+            width: 18px; height: 18px;
+            background: transparent;
             border: 2px solid #000000;
         }
 
@@ -162,23 +127,20 @@
            CONTROLS FOOTER (منوی دکمه‌های پایینی خارج از محیط بازی)
            ========================================================================== */
         .controls-footer {
-            position: relative;
-            z-index: 10;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 20px 30px 20px;
+            position: relative; z-index: 10;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 10px 20px 30px 20px;
+            background: transparent;
         }
 
         /* دکمه ماینینگ سمت چپ */
         .btn-mining {
             background: rgba(255, 255, 255, 0.04);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 14px;
-            padding: 15px 20px;
+            border-radius: 12px;
+            padding: 14px 18px;
             color: #8a8d93;
-            font-size: 13px;
-            font-weight: 700;
+            font-size: 12px; font-weight: 700;
             cursor: pointer;
             transition: all 0.3s ease;
             text-transform: uppercase;
@@ -189,50 +151,39 @@
             background: rgba(212, 175, 55, 0.1);
             border-color: #d4af37;
             color: #d4af37;
-            box-shadow: 0 0 15px rgba(212, 175, 55, 0.15);
+            box-shadow: 0 0 12px rgba(212, 175, 55, 0.15);
         }
 
         /* دکمه صندوقچه جایزه سمت راست */
         .btn-chest {
             background: rgba(255, 255, 255, 0.04);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 14px;
-            padding: 15px 22px;
+            border-radius: 12px;
+            padding: 14px 20px;
             font-size: 18px;
             cursor: pointer;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            display: flex; justify-content: center; align-items: center;
             transition: background 0.3s ease;
         }
-        .btn-chest:active {
-            background: rgba(255, 255, 255, 0.1);
-        }
+        .btn-chest:active { background: rgba(255, 255, 255, 0.08); }
 
         /* ==========================================================================
-           MODALS & ALERTS (پاپ‌آپ‌های شیک اختصاصی)
+           MODALS & ALERTS (پاپ‌آپ‌های اختصاصی)
            ========================================================================== */
         .modal-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100vw; height: 100vh;
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background: rgba(0, 0, 0, 0.7);
             backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
             z-index: 100;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            display: flex; justify-content: center; align-items: center;
             opacity: 0; pointer-events: none;
             transition: opacity 0.3s ease;
         }
 
-        .modal-overlay.show {
-            opacity: 1; pointer-events: auto;
-        }
+        .modal-overlay.show { opacity: 1; pointer-events: auto; }
 
         .glass-modal {
-            width: 85%;
-            max-width: 320px;
+            width: 85%; max-width: 320px;
             background: rgba(255, 255, 255, 0.03);
             border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 24px;
@@ -244,10 +195,7 @@
         .modal-title { font-size: 18px; font-weight: 700; margin-bottom: 12px; }
         .modal-desc { font-size: 13px; color: #8a8d93; line-height: 1.5; margin-bottom: 25px; }
 
-        .modal-btn-group {
-            display: flex;
-            gap: 12px;
-        }
+        .modal-btn-group { display: flex; gap: 12px; }
 
         .btn-modal-primary {
             flex: 1;
@@ -268,6 +216,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
         import { getDatabase, ref, get, update, onValue } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
 
+        // کانفیگ اختصاصی فایربیس شما
         const firebaseConfig = {
             apiKey: "AIzaSyDQ7-AJGgjhxFxMdgoPQKiNt0YanP0ryHo",
             authDomain: "haghfiozfirst1.firebaseapp.com",
@@ -283,7 +232,7 @@
 
         let userPhone = localStorage.getItem('user_logged_in_phone');
         
-        // قفل امنیتی ورود: اگر شماره در حافظه نبود کلا به صفحه اصلی پرتاب شود
+        // قفل امنیتی ورود
         if (!userPhone) {
             window.location.href = 'index.html';
         }
@@ -295,7 +244,7 @@
         let isMiningActive = false;
         let miningInterval = null;
 
-        // فرمت کردن شماره تلفن به صورت امن برای هدر
+        // فرمت کردن شماره تلفن به صورت امن
         function maskPhoneNumber(phone) {
             if(phone.length > 7) {
                 return phone.substring(0, 4) + "***" + phone.substring(phone.length - 4);
@@ -321,7 +270,7 @@
                 currentCoins = data.coins || 0;
                 document.getElementById('coin-display').innerText = currentCoins.toLocaleString();
                 
-                // هندل کردن لود اولیه وضعیت ماینینگ از فایربیس
+                // هندل کردن وضعیت ماینینگ
                 const firebaseMining = data.mining_status === 'on';
                 if(firebaseMining !== isMiningActive) {
                     isMiningActive = firebaseMining;
@@ -337,10 +286,10 @@
         const playground = document.getElementById('game-playground');
 
         function moveCoins() {
-            if (isMiningActive) return; // اگر ماین روشن بود، سکه‌ها جابجا نشوند
+            if (isMiningActive) return; 
             
-            const pWidth = playground.clientWidth - 65;
-            const pHeight = playground.clientHeight - 65;
+            const pWidth = playground.clientWidth - 70;
+            const pHeight = playground.clientHeight - 70;
 
             coinsElements.forEach(coin => {
                 const randomX = Math.floor(Math.random() * pWidth);
@@ -350,17 +299,16 @@
             });
         }
 
-        // حرکت اولیه و اجرای لوپ جابجایی تصادفی سکه‌ها هر ۱.۳ ثانیه
-        setInterval(moveCoins, 1300);
+        setTimeout(moveCoins, 100); 
+        setInterval(moveCoins, 1500);
 
-        // شکار سکه‌ها و اضافه شدن امتیاز تپ
+        // شکار سکه و اضافه شدن دارایی
         window.handleCoinTap = async function(element) {
             if (isMiningActive) {
                 showAlert("Mining is Active!", "You cannot catch coins while auto-mining is turned on.");
                 return;
             }
 
-            // افکت انیمیشن سریع هنگام لمس
             element.style.transform = "scale(0.8)";
             setTimeout(() => { element.style.transform = "scale(1)"; }, 100);
 
@@ -381,7 +329,6 @@
                 last_mining_check: now
             };
 
-            // اگر تازه روشن شده، محاسبه آفلاین نیاز ندارد، فقط زمان استارت ثبت می‌شود
             await update(userRef, updates);
             isMiningActive = nextState;
             updateMiningUI();
@@ -392,7 +339,6 @@
             if (isMiningActive) {
                 btn.innerText = "Auto Mine: ON ⚡";
                 btn.classList.add('active');
-                // پنهان کردن موقت سکه‌ها برای تمرکز روی ماینینگ
                 coinsElements.forEach(c => c.style.display = 'none');
                 startLiveMiningTimer();
             } else {
@@ -405,7 +351,6 @@
 
         function startLiveMiningTimer() {
             if(miningInterval) clearInterval(miningInterval);
-            // هر ۱ دقیقه آنلاین بودن ۵۰۰ سکه اضافه و کلید تایم آپدیت می‌شود
             miningInterval = setInterval(async () => {
                 if (!isMiningActive) return;
                 const now = Date.now();
@@ -416,7 +361,6 @@
             }, 60000);
         }
 
-        // بررسی و اعمال سود ماینینگ در زمان آفلاین بودن کاربر
         async function checkOfflineMining() {
             try {
                 const snapshot = await get(userRef);
@@ -440,11 +384,10 @@
             } catch(e) { console.error(e); }
         }
         
-        // اجرای چک آفلاین بلافاصله پس از لود کامل صفحه
-        setTimeout(checkOfflineMining, 1500);
+        setTimeout(checkOfflineMining, 2000);
 
         /* ==========================================================================
-           صندوقچه جایزه ۲۴ ساعته (۵,۰۰۰ سکه پاداش)
+           صندوقچه جایزه ۲۴ ساعته (۵,۰۰۰ سکه پاداش با محاسبات ثانیه‌ای دقیق)
            ========================================================================== */
         window.claimDailyChest = async function() {
             try {
@@ -454,23 +397,30 @@
                 const data = snapshot.val();
                 const now = Date.now();
                 const lastClaim = data.last_chest_claim || 0;
-                const oneDayMs = 24 * 60 * 60 * 1000; // ۲۴ ساعت به میلی‌ثانیه
+                const oneDayMs = 24 * 60 * 60 * 1000; 
 
                 if (now - lastClaim >= oneDayMs) {
-                    // اهدای جایزه ۵۰۰۰ تایی
                     await update(userRef, {
                         coins: currentCoins + 5000,
                         last_chest_claim: now
                     });
                     showAlert("🎁 Reward Claimed!", "Success! 5,000 premium coins have been added to your balance.");
                 } else {
-                    // محاسبه زمان دقیق باقی‌مانده
                     const timeLeft = oneDayMs - (now - lastClaim);
+                    
                     const hours = Math.floor(timeLeft / (1000 * 60 * 60));
                     const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-                    showAlert("Access Denied", `Please wait ${hours}h ${minutes}m before opening the daily reward chest again.`);
+                    const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+
+                    showAlert(
+                        "Access Denied", 
+                        `You have already claimed your daily reward. Please wait ${hours} hours, ${minutes} minutes, and ${seconds} seconds.`
+                    );
                 }
-            } catch (e) { console.error(e); }
+            } catch (e) { 
+                console.error(e); 
+                showAlert("Error", "Connection error. Please try again.");
+            }
         };
 
         /* ==========================================================================
@@ -482,17 +432,11 @@
             document.getElementById('alert-desc').innerText = desc;
             globalOverlay.classList.add('show');
         };
-        window.closeAlert = function() {
-            globalOverlay.classList.remove('show');
-        };
+        window.closeAlert = function() { globalOverlay.classList.remove('show'); };
 
         const logoutOverlay = document.getElementById('logout-alert');
-        window.triggerLogoutPrompt = function() {
-            logoutOverlay.classList.add('show');
-        };
-        window.closeLogoutPrompt = function() {
-            logoutOverlay.classList.remove('show');
-        };
+        window.triggerLogoutPrompt = function() { logoutOverlay.classList.add('show'); };
+        window.closeLogoutPrompt = function() { logoutOverlay.classList.remove('show'); };
         window.confirmLogout = function() {
             localStorage.removeItem('user_logged_in_phone');
             window.location.href = 'index.html';
@@ -505,23 +449,48 @@
 
     <header>
         <div class="user-info">
-            <span id="display-phone" class="user-phone">+98912***34</span>
+            <span id="display-phone" class="user-phone">+98912***3456</span>
             <button class="btn-logout" onclick="window.triggerLogoutPrompt()">Logout 🚪</button>
         </div>
         <div class="coin-counter-box">
             <span id="coin-display" class="coin-amount">0</span>
-            <div class="mini-coin">
-                <div class="mini-square"></div>
+            <div class="header-coin">
+                <div class="header-square"></div>
             </div>
         </div>
     </header>
 
     <div id="game-playground" class="playground">
-        <div class="game-coin" style="top:20%; left:15%;" onclick="window.handleCoinTap(this)">
+        <div class="game-coin" style="top:15%; left:20%;" onclick="window.handleCoinTap(this)">
             <div class="game-square"></div>
         </div>
-        <div class="game-coin" style="top:50%; left:45%;" onclick="window.handleCoinTap(this)">
+        <div class="game-coin" style="top:45%; left:40%;" onclick="window.handleCoinTap(this)">
             <div class="game-square"></div>
         </div>
-        <div class="game-coin" style="top:70%; left:75%;" onclick="window.handleCoinTap(this)">
-            <div class="game-sq
+        <div class="game-coin" style="top:70%; left:70%;" onclick="window.handleCoinTap(this)">
+            <div class="game-square"></div>
+        </div>
+    </div>
+
+    <div class="controls-footer">
+        <button id="btn-mining-ctrl" class="btn-mining" onclick="window.toggleMining()">
+            Auto Mine: OFF 💤
+        </button>
+        
+        <button class="btn-chest" onclick="window.claimDailyChest()">
+            🎁
+        </button>
+    </div>
+
+    <div id="global-alert" class="modal-overlay">
+        <div class="glass-modal">
+            <h3 id="alert-title" class="modal-title">Notification</h3>
+            <p id="alert-desc" class="modal-desc">Message details...</p>
+            <button class="btn-modal-primary" style="width:100%" onclick="window.closeAlert()">Got it</button>
+        </div>
+    </div>
+
+    <div id="logout-alert" class="modal-overlay">
+        <div class="glass-modal">
+            <h3 class="modal-title">Account Sign Out</h3>
+            <p class="modal-desc">To access your dashboard later
