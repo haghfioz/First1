@@ -162,35 +162,24 @@
             text-align: center;
         }
     </style>
-</head>
-<body>
 
-    <div class="glow-effect"></div>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
+        import { getDatabase, ref, update, remove } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
 
-    <div class="glass-card">
-        <div class="screen-header">
-            <h2 class="screen-title">Set Password</h2>
-            <p class="screen-subtitle">Create a secure password to complete your account setup</p>
-        </div>
+        // کانفیگ اختصاصی فایربیس شما
+        const firebaseConfig = {
+            apiKey: "AIzaSyDQ7-AJGgjhxFxMdgoPQKiNt0YanP0ryHo",
+            authDomain: "haghfiozfirst1.firebaseapp.com",
+            databaseURL: "https://haghfiozfirst1-default-rtdb.firebaseio.com",
+            projectId: "haghfiozfirst1",
+            storageBucket: "haghfiozfirst1.firebasestorage.app",
+            messagingSenderId: "477284748293",
+            appId: "1:477284748293:web:b5ecca49f844662c7fa06c"
+        };
 
-        <div class="input-group">
-            <label class="input-label">Choose Password</label>
-            <input type="password" id="password-input" class="input-field" placeholder="Minimum 4 characters" minlength="4" required>
-            <div id="err-box" class="error-message">Error saving registration. Please try again.</div>
-        </div>
-
-        <button id="btn-final" class="btn-primary" onclick="finalizeRegistration()">
-            Complete & Enter 🚀
-        </button>
-
-        <button id="btn-exit" class="btn-exit-delete" onclick="handleExitAndDelete()">
-            Cancel & Exit ❌
-        </button>
-    </div>
-
-    <script>
-        const SUPABASE_URL = "https://uakbmplpnejbfvdrcvkl.supabase.co";
-        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVha2JtcGxwbmVqYmZ2ZHJjdmtsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkwNzg2NDِeXAiOjIwOTQ2NTQ2NDJ9.9kYGLceuC3OjJuFUYaBgUJLUmrA6-iQqUmUOpdDyM2k"; 
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
 
         /* ==========================================================================
            سیستم ضد بازگشت و ریفرش (Anti-Back & Anti-Refresh)
@@ -200,7 +189,8 @@
             history.pushState(null, null, location.href);
         };
 
-        async function finalizeRegistration() {
+        // ثبت نهایی اطلاعات و فعال‌سازی اکانت
+        window.finalizeRegistration = async function() {
             const passwordInput = document.getElementById('password-input').value.trim();
             const btnFinal = document.getElementById('btn-final');
             const errBox = document.getElementById('err-box');
@@ -222,29 +212,24 @@
             btnFinal.innerHTML = "Saving Profile... ⏳";
             errBox.style.display = "none";
 
+            const safePhoneKey = pendingPhone.replace(/[.#$[\]]/g, "");
+
             try {
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/users?phone=eq.${encodeURIComponent(pendingPhone)}`, {
-                    method: 'PATCH',
-                    headers: {
-                        'apikey': SUPABASE_ANON_KEY,
-                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-                        'Content-Type': 'application/json',
-                        'Prefer': 'return=minimal'
-                    },
-                    body: JSON.stringify({
-                        password: passwordInput,
-                        status: 'verified',
-                        coins: 0
-                    })
+                // آپدیت فیلدهای پسورد و تغییر وضعیت به تایید شده در فایربیس
+                const userRef = ref(database, 'users/' + safePhoneKey);
+                await update(userRef, {
+                    password: passwordInput,
+                    status: 'verified',
+                    coins: 0
                 });
 
-                if (response.ok) {
-                    localStorage.setItem('user_logged_in_phone', pendingPhone);
-                    localStorage.removeItem('user_pending_phone');
-                    window.location.href = 'main.html';
-                } else {
-                    throw new Error("Supabase update failed");
-                }
+                // انتقال شماره به وضعیت لاگین‌شده و پاک کردن حالت پندینگ
+                localStorage.setItem('user_logged_in_phone', pendingPhone);
+                localStorage.removeItem('user_pending_phone');
+                
+                // ورود به صفحه اصلی بازی
+                window.location.href = 'main.html';
+                
             } catch (error) {
                 console.error(error);
                 btnFinal.disabled = false;
@@ -255,9 +240,9 @@
         }
 
         /* ==========================================================================
-           سیستم هشدار خروج و حذف قطعی از دیتابیس
+           سیستم هشدار خروج و حذف قطعی ردیف موقت از فایربیس
            ========================================================================== */
-        async function handleExitAndDelete() {
+        window.handleExitAndDelete = async function() {
             const pendingPhone = localStorage.getItem('user_pending_phone');
             const btnExit = document.getElementById('btn-exit');
             const errBox = document.getElementById('err-box');
@@ -267,42 +252,59 @@
                 return;
             }
 
-            // ۱. نمایش پیام تایید و اخطار درخواستی شما به کاربر
             const message = "If you exit, your registration progress will be deleted and you must verify your phone number and get a new code from the bot again. Are you sure?";
             const userConfirmed = confirm(message);
 
-            // اگر کاربر انصراف داد، عملیات را متوقف کن
             if (!userConfirmed) {
                 return;
             }
 
-            // ۲. اگر کاربر تایید کرد، اقدام به حذف از دیتابیس میکند
             btnExit.innerText = "Deleting account... ⏳";
-            btnExit.disabled = true;
+            btnExit.style.pointerEvents = "none";
+
+            const safePhoneKey = pendingPhone.replace(/[.#$[\]]/g, "");
 
             try {
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/users?phone=eq.${encodeURIComponent(pendingPhone)}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'apikey': SUPABASE_ANON_KEY,
-                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
-                    }
-                });
+                // حذف کامل پوشه شماره تلفن نیمه‌کاره از فایربیس
+                const userRef = ref(database, 'users/' + safePhoneKey);
+                await remove(userRef);
 
-                if (response.ok) {
-                    localStorage.removeItem('user_pending_phone');
-                    window.location.href = 'index.html';
-                } else {
-                    throw new Error("Delete request failed");
-                }
+                localStorage.removeItem('user_pending_phone');
+                window.location.href = 'index.html';
             } catch (error) {
                 console.error(error);
                 btnExit.innerText = "Cancel & Exit ❌";
-                btnExit.disabled = false;
-                errBox.innerText = "Connection error. Could not delete database row.";
+                btnExit.style.pointerEvents = "auto";
+                errBox.innerText = "Connection error. Could not delete session.";
                 errBox.style.display = "block";
             }
         }
     </script>
+</head>
+<body>
+
+    <div class="glow-effect"></div>
+
+    <div class="glass-card">
+        <div class="screen-header">
+            <h2 class="screen-title">Set Password</h2>
+            <p class="screen-subtitle">Create a secure password to complete your account setup</p>
+        </div>
+
+        <div class="input-group">
+            <label class="input-label">Choose Password</label>
+            <input type="password" id="password-input" class="input-field" placeholder="Minimum 4 characters" minlength="4" required>
+            <div id="err-box" class="error-message">Error saving registration. Please try again.</div>
+        </div>
+
+        <button id="btn-final" class="btn-primary" onclick="window.finalizeRegistration()">
+            Complete & Enter 🚀
+        </button>
+
+        <button id="btn-exit" class="btn-exit-delete" onclick="window.handleExitAndDelete()">
+            Cancel & Exit ❌
+        </button>
+    </div>
+
 </body>
 </html>
