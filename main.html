@@ -89,7 +89,7 @@
         .playground {
             flex: 1;
             position: relative; z-index: 5;
-            margin: 15px;
+            margin: 15px 15px 5px 15px; /* فاصله پایینی باکس بازی کمتر شد تا فضا باز شود */
             background: rgba(255, 255, 255, 0.01);
             border: 1px solid rgba(255, 255, 255, 0.03);
             border-radius: 24px;
@@ -124,12 +124,12 @@
         }
 
         /* ==========================================================================
-           CONTROLS FOOTER (منوی دکمه‌های پایینی خارج از محیط بازی)
+           CONTROLS FOOTER (منوی دکمه‌های پایینی خارج از محیط بازی) - اصلاح ارتفاع دکمه‌ها
            ========================================================================== */
         .controls-footer {
             position: relative; z-index: 10;
             display: flex; justify-content: space-between; align-items: center;
-            padding: 10px 20px 30px 20px;
+            padding: 15px 20px 55px 20px; /* افزایش پدینگ پایینی برای هدایت دکمه‌ها به سمت بالا */
             background: transparent;
         }
 
@@ -216,7 +216,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
         import { getDatabase, ref, get, update, onValue } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
 
-        // کانفیگ اختصاصی فایربیس شما
         const firebaseConfig = {
             apiKey: "AIzaSyDQ7-AJGgjhxFxMdgoPQKiNt0YanP0ryHo",
             authDomain: "haghfiozfirst1.firebaseapp.com",
@@ -232,7 +231,6 @@
 
         let userPhone = localStorage.getItem('user_logged_in_phone');
         
-        // قفل امنیتی ورود
         if (!userPhone) {
             window.location.href = 'index.html';
         }
@@ -244,7 +242,6 @@
         let isMiningActive = false;
         let miningInterval = null;
 
-        // فرمت کردن شماره تلفن به صورت امن
         function maskPhoneNumber(phone) {
             if(phone.length > 7) {
                 return phone.substring(0, 4) + "***" + phone.substring(phone.length - 4);
@@ -254,7 +251,7 @@
         document.getElementById('display-phone').innerText = maskPhoneNumber(userPhone);
 
         /* ==========================================================================
-           قفل کامل خروج ناخواسته (Anti-Back & Anti-Refresh Loop)
+           قفل کامل خروج ناخواسته (Anti-Back System)
            ========================================================================== */
         history.pushState(null, null, location.href);
         window.onpopstate = function () {
@@ -262,7 +259,7 @@
         };
 
         /* ==========================================================================
-           شنود زنده فایربیس (Realtime Data Sync)
+           شنود زنده فایربیس
            ========================================================================== */
         onValue(userRef, (snapshot) => {
             if (snapshot.exists()) {
@@ -270,7 +267,6 @@
                 currentCoins = data.coins || 0;
                 document.getElementById('coin-display').innerText = currentCoins.toLocaleString();
                 
-                // هندل کردن وضعیت ماینینگ
                 const firebaseMining = data.mining_status === 'on';
                 if(firebaseMining !== isMiningActive) {
                     isMiningActive = firebaseMining;
@@ -280,7 +276,7 @@
         });
 
         /* ==========================================================================
-           سیستم جابجایی تصادفی سکه‌ها (Flying Coins Mechanics)
+           سیستم جابجایی تصادفی سکه‌ها
            ========================================================================== */
         const coinsElements = document.querySelectorAll('.game-coin');
         const playground = document.getElementById('game-playground');
@@ -302,7 +298,6 @@
         setTimeout(moveCoins, 100); 
         setInterval(moveCoins, 1500);
 
-        // شکار سکه و اضافه شدن دارایی
         window.handleCoinTap = async function(element) {
             if (isMiningActive) {
                 showAlert("Mining is Active!", "You cannot catch coins while auto-mining is turned on.");
@@ -318,7 +313,7 @@
         };
 
         /* ==========================================================================
-           سیستم ماینینگ خودکار هوشمند (آفلاین + آنلاین)
+           سیستم ماینینگ خودکار هوشمند
            ========================================================================== */
         window.toggleMining = async function() {
             const nextState = !isMiningActive;
@@ -387,7 +382,7 @@
         setTimeout(checkOfflineMining, 2000);
 
         /* ==========================================================================
-           صندوقچه جایزه ۲۴ ساعته (۵,۰۰۰ سکه پاداش با محاسبات ثانیه‌ای دقیق)
+           صندوقچه جایزه ۲۴ ساعته
            ========================================================================== */
         window.claimDailyChest = async function() {
             try {
@@ -424,7 +419,7 @@
         };
 
         /* ==========================================================================
-           سیستم پاپ‌آپ‌های اختصاصی و دکمه LOGOUT
+           سیستم پاپ‌آپ‌ها
            ========================================================================== */
         const globalOverlay = document.getElementById('global-alert');
         window.showAlert = function(title, desc) {
@@ -493,4 +488,6 @@
     <div id="logout-alert" class="modal-overlay">
         <div class="glass-modal">
             <h3 class="modal-title">Account Sign Out</h3>
-            <p class="modal-desc">To access your dashboard later
+            <p class="modal-desc">To access your dashboard later, you will need to enter your password again. Are you sure you want to sign out?</p>
+            <div class="modal-btn-group">
+                <button class="btn-modal-secondary" onclick="
