@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>[RE] AI - Sign In</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap">
+    
+    <style>
+        /* ==========================================================================
+           RESET & BASE STYLES (تنظیمات پایه و فونت)
+           ========================================================================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+
+        body {
+            background-color: #0b0c10;
+            color: #ffffff;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .glow-effect {
+            position: absolute;
+            width: 320px;
+            height: 320px;
+            background: radial-gradient(circle, rgba(212, 175, 55, 0.12) 0%, rgba(0,0,0,0) 70%);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* ==========================================================================
+           GLASS CARD DESIGN (کارت شیشه‌ای لوکس)
+           ========================================================================== */
+        .glass-card {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            max-width: 350px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border-radius: 28px;
+            padding: 40px 25px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6);
+            text-align: center;
+        }
+
+        .screen-header {
+            margin-bottom: 25px;
+        }
+
+        .screen-title {
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            color: #ffffff;
+        }
+
+        .screen-subtitle {
+            font-size: 13px;
+            color: #8a8d93;
+            margin-top: 8px;
+            line-height: 1.4;
+        }
+
+        /* ==========================================================================
+           FORM INPUTS (کادرهای ورودی تلفن و رمز)
+           ========================================================================== */
+        .input-group {
+            margin-bottom: 18px;
+            text-align: left;
+        }
+
+        .input-label {
+            display: block;
+            font-size: 12px;
+            color: #8a8d93;
+            margin-bottom: 6px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .input-field {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 14px;
+            color: #ffffff;
+            font-size: 15px;
+            font-weight: 600;
+            outline: none;
+            user-select: text !important;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .input-field:focus {
+            border-color: rgba(212, 175, 55, 0.5);
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.1);
+        }
+
+        /* ==========================================================================
+           BUTTONS SYSTEM (دکمه‌ها)
+           ========================================================================== */
+        .btn-primary {
+            width: 100%;
+            background: linear-gradient(135deg, #d4af37 0%, #aa841b 100%);
+            border: none;
+            padding: 16px;
+            border-radius: 14px;
+            color: #000000;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(212, 175, 55, 0.2);
+            transition: transform 0.1s ease;
+            margin-top: 10px;
+            margin-bottom: 15px;
+        }
+
+        .btn-primary:active { transform: scale(0.97); }
+        .btn-primary:disabled { opacity: 0.6; }
+
+        .btn-back {
+            background: none;
+            border: none;
+            color: #8a8d93;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .btn-back:active { color: #ffffff; }
+
+        .error-message {
+            color: #ff4757;
+            font-size: 12px;
+            margin-top: 12px;
+            display: none;
+            font-weight: 500;
+            text-align: center;
+            line-height: 1.4;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="glow-effect"></div>
+
+    <div class="glass-card">
+        <div class="screen-header">
+            <h2 class="screen-title">Sign In</h2>
+            <p class="screen-subtitle">Access your premium account dashboard</p>
+        </div>
+
+        <div class="input-group">
+            <label class="input-label">Phone Number</label>
+            <input type="tel" id="login-phone" class="input-field" placeholder="e.g. +989123456789" required>
+        </div>
+
+        <div class="input-group">
+            <label class="input-label">Password</label>
+            <input type="password" id="login-password" class="input-field" placeholder="Enter your password" required>
+            <div id="err-box" class="error-message"></div>
+        </div>
+
+        <button id="btn-login" class="btn-primary" onclick="handleLogin()">
+            Secure Login 🔐
+        </button>
+
+        <button class="btn-back" onclick="window.location.href='index.html'">
+            ← Back to Main Menu
+        </button>
+    </div>
+
+    <script>
+        const SUPABASE_URL = "https://uakbmplpnejbfvdrcvkl.supabase.co";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVha2JtcGxwbmVqYmZ2ZHJjdmtsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkwNzg2NDِeXAiOjIwOTQ2NTQ2NDJ9.9kYGLceuC3OjJuFUYaBgUJLUmrA6-iQqUmUOpdDyM2k"; 
+
+        async function handleLogin() {
+            const phoneVal = document.getElementById('login-phone').value.trim();
+            const passwordVal = document.getElementById('login-password').value.trim();
+            const btnLogin = document.getElementById('btn-login');
+            const errBox = document.getElementById('err-box');
+
+            // بررسی خالی نبودن کادرها
+            if (!phoneVal || !passwordVal) {
+                errBox.innerText = "Please fill in all fields.";
+                errBox.style.display = "block";
+                return;
+            }
+
+            btnLogin.disabled = true;
+            btnLogin.innerHTML = "Authenticating... ⏳";
+            errBox.style.display = "none";
+
+            try {
+                // درخواست دریافت ردیف کاربر بر اساس شماره تلفن وارد شده
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/users?phone=eq.${encodeURIComponent(phoneVal)}&select=*`, {
+                    method: 'GET',
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) throw new Error("Network response error");
+
+                const users = await response.json();
+
+                // ۱. بررسی اینکه آیا کاربر اصلاً ثبت‌نام کرده یا خیر
+                if (users.length === 0 || users[0].status !== 'verified') {
+                    errBox.innerText = "You have not registered yet! Please go back and use Sign Up.";
+                    errBox.style.display = "block";
+                    btnLogin.disabled = false;
+                    btnLogin.innerHTML = "Secure Login 🔐";
+                    return;
+                }
+
+                const userData = users[0];
+
+                // ۲. بررسی درست بودن پسورد شخصی کاربر
+                if (userData.password === passwordVal) {
+                    // ذخیره شماره تلفن لاگین شده برای دسترسی در صفحه بازی
+                    localStorage.setItem('user_logged_in_phone', phoneVal);
+                    
+                    // هدایت مستقیم به صفحه اصلی مینی‌اپ
+                    window.location.href = 'main.html';
+                } else {
+                    // ارور در صورت اشتباه بودن رمز
+                    errBox.innerText = "Incorrect password. Please try again.";
+                    errBox.style.display = "block";
+                    btnLogin.disabled = false;
+                    btnLogin.innerHTML = "Secure Login 🔐";
+                }
+
+            } catch (error) {
+                console.error(error);
+                errBox.innerText = "Connection error. Please check your network.";
+                errBox.style.display = "block";
+                btnLogin.disabled = false;
+                btnLogin.innerHTML = "Secure Login 🔐";
+            }
+        }
+    </script>
+</body>
+</html>

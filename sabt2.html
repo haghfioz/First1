@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>[RE] AI - Verification</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap">
+    
+    <style>
+        /* ==========================================================================
+           RESET & BASE STYLES (تنظیمات پایه و فونت)
+           ========================================================================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+
+        body {
+            background-color: #0b0c10;
+            color: #ffffff;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .glow-effect {
+            position: absolute;
+            width: 320px;
+            height: 320px;
+            background: radial-gradient(circle, rgba(212, 175, 55, 0.12) 0%, rgba(0,0,0,0) 70%);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* ==========================================================================
+           GLASS CARD DESIGN (کارت شیشه‌ای لوکس)
+           ========================================================================== */
+        .glass-card {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            max-width: 350px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border-radius: 28px;
+            padding: 40px 25px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6);
+            text-align: center;
+        }
+
+        .screen-header {
+            margin-bottom: 25px;
+        }
+
+        .screen-title {
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            color: #ffffff;
+        }
+
+        .bot-instruction {
+            background: rgba(212, 175, 55, 0.05);
+            border: 1px solid rgba(212, 175, 55, 0.15);
+            border-radius: 16px;
+            padding: 15px;
+            margin-top: 15px;
+            font-size: 13px;
+            color: #d4af37;
+            line-height: 1.5;
+            text-align: left;
+        }
+
+        .bot-command {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        /* ==========================================================================
+           FORM INPUTS (کادرهای ورودی)
+           ========================================================================== */
+        .input-group {
+            margin-top: 25px;
+            margin-bottom: 25px;
+            text-align: left;
+        }
+
+        .input-label {
+            display: block;
+            font-size: 12px;
+            color: #8a8d93;
+            margin-bottom: 8px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .input-field {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 16px;
+            border-radius: 14px;
+            color: #ffffff;
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 4px;
+            text-align: center;
+            outline: none;
+            user-select: text !important;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .input-field:focus {
+            border-color: rgba(212, 175, 55, 0.5);
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.1);
+        }
+
+        /* ==========================================================================
+           BUTTONS SYSTEM (سیستم دکمه‌ها)
+           ========================================================================== */
+        .btn-primary {
+            width: 100%;
+            background: linear-gradient(135deg, #d4af37 0%, #aa841b 100%);
+            border: none;
+            padding: 16px;
+            border-radius: 14px;
+            color: #000000;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(212, 175, 55, 0.2);
+            transition: transform 0.1s ease;
+            margin-bottom: 15px;
+        }
+
+        .btn-primary:active { transform: scale(0.97); }
+
+        /* دکمه بازگشت و اصلاح شماره اشتباه */
+        .btn-back-edit {
+            background: none;
+            border: none;
+            color: #8a8d93;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: underline;
+            transition: color 0.3s ease;
+        }
+
+        .btn-back-edit:active {
+            color: #ff4757; /* موقع لمس متمایل به قرمز می‌شود */
+        }
+
+        .error-message {
+            color: #ff4757;
+            font-size: 12px;
+            margin-top: 10px;
+            display: none;
+            font-weight: 500;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="glow-effect"></div>
+
+    <div class="glass-card">
+        <div class="screen-header">
+            <h2 class="screen-title">Verification</h2>
+            
+            <div class="bot-instruction">
+                To receive your activation key, please open our official Telegram Bot and send the command: <span class="bot-command">code</span>
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label class="input-label">Activation Code</label>
+            <input type="text" id="code-input" class="input-field" placeholder="•••••" maxlength="5" required>
+            <div id="err-box" class="error-message">Invalid activation code. Please check your bot!</div>
+        </div>
+
+        <button id="btn-verify" class="btn-primary" onclick="verifyActivationCode()">
+            Verify & Next 🚀
+        </button>
+
+        <button id="btn-change-number" class="btn-back-edit" onclick="handleWrongNumber()">
+            Wrong Number? Edit Phone ✨
+        </button>
+    </div>
+
+    <script>
+        const SUPABASE_URL = "https://uakbmplpnejbfvdrcvkl.supabase.co";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVha2JtcGxwbmVqYmZ2ZHJjdmtsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkwNzg2NDِeXAiOjIwOTQ2NTQ2NDJ9.9kYGLceuC3OjJuFUYaBgUJLUmrA6-iQqUmUOpdDyM2k"; 
+
+        // ۱۰۰ رمز رندوم ثابت شما
+        const VALID_CODES = [
+            "14392", "18204", "21953", "24810", "27395", "30148", "32901", "35487", "38124", "41059",
+            "43921", "46810", "49275", "51048", "53920", "56417", "58294", "61053", "63928", "66104",
+            "68925", "71402", "73951", "76210", "78943", "81057", "83924", "86149", "88205", "91348",
+            "93820", "96415", "98204", "10593", "12840", "15932", "17482", "20194", "23851", "26490",
+            "29104", "31853", "34920", "37184", "39502", "42915", "45108", "48293", "50184", "52941",
+            "55104", "57492", "59281", "62109", "64835", "67194", "69302", "72184", "74930", "77185",
+            "79402", "82194", "84930", "87104", "89382", "92104", "94823", "97105", "99381", "11492",
+            "13840", "16294", "18492", "21058", "23941", "25839", "28401", "31059", "33842", "36195",
+            "38402", "41295", "43810", "46294", "48105", "51394", "53810", "56291", "58403", "61295",
+            "63810", "65924", "68104", "71395", "73840", "76194", "78402", "81295", "83810", "85942"
+        ];
+
+        /* ==========================================================================
+           قفل کردن دکمه بازگشت (Anti-Back System)
+           ========================================================================== */
+        history.pushState(null, null, location.href);
+        window.onpopstate = function () {
+            history.pushState(null, null, location.href);
+        };
+
+        function verifyActivationCode() {
+            const codeInput = document.getElementById('code-input').value.trim();
+            const errBox = document.getElementById('err-box');
+
+            if (VALID_CODES.includes(codeInput)) {
+                errBox.style.display = "none";
+                window.location.href = 'sabt3.html';
+            } else {
+                errBox.style.display = "block";
+            }
+        }
+
+        /* ==========================================================================
+           منطق دکمه اصلاح شماره: پاک کردن از دیتابیس و بازگشت
+           ========================================================================== */
+        async function handleWrongNumber() {
+            const pendingPhone = localStorage.getItem('user_pending_phone');
+            const btnChange = document.getElementById('btn-change-number');
+            const errBox = document.getElementById('err-box');
+
+            if (!pendingPhone) {
+                window.location.href = 'sabt.html';
+                return;
+            }
+
+            btnChange.innerText = "Cleaning database... ⏳";
+            btnChange.disabled = true;
+
+            try {
+                // ارسال درخواست DELETE به Supabase برای پاک کردن شماره فیک یا اشتباه
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/users?phone=eq.${encodeURIComponent(pendingPhone)}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    }
+                });
+
+                if (response.ok) {
+                    // پاک کردن شماره از حافظه موقت مرورگر
+                    localStorage.removeItem('user_pending_phone');
+                    // هدایت امن به صفحه اول ثبت نام
+                    window.location.href = 'sabt.html';
+                } else {
+                    throw new Error("Failed to delete from Supabase");
+                }
+            } catch (error) {
+                console.error(error);
+                btnChange.innerText = "Wrong Number? Edit Phone ✨";
+                btnChange.disabled = false;
+                errBox.innerText = "Error updating database. Just click again.";
+                errBox.style.display = "block";
+            }
+        }
+    </script>
+</body>
+</html>

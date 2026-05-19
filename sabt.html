@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>[RE] AI - Create Account</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap">
+    
+    <style>
+        /* ==========================================================================
+           RESET & BASE STYLES (تنظیمات پایه)
+           ========================================================================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+
+        body {
+            background-color: #0b0c10;
+            color: #ffffff;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .glow-effect {
+            position: absolute;
+            width: 320px;
+            height: 320px;
+            background: radial-gradient(circle, rgba(212, 175, 55, 0.12) 0%, rgba(0,0,0,0) 70%);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* ==========================================================================
+           GLASS CARD DESIGN (کارت شیشه‌ای لوکس)
+           ========================================================================== */
+        .glass-card {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            max-width: 350px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border-radius: 28px;
+            padding: 40px 25px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6);
+            text-align: center;
+        }
+
+        .screen-header {
+            margin-bottom: 30px;
+        }
+
+        .screen-title {
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            color: #ffffff;
+        }
+
+        .screen-subtitle {
+            font-size: 13px;
+            color: #8a8d93;
+            margin-top: 8px;
+            line-height: 1.4;
+        }
+
+        /* ==========================================================================
+           FORM INPUTS (کادرهای ورودی شیک و مدرن)
+           ========================================================================== */
+        .input-group {
+            margin-bottom: 25px;
+            text-align: left;
+        }
+
+        .input-label {
+            display: block;
+            font-size: 12px;
+            color: #8a8d93;
+            margin-bottom: 8px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        /* طراحی کادر شماره تلفن متناسب با تم اپل و کریپتو */
+        .input-field {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 16px;
+            border-radius: 14px;
+            color: #ffffff;
+            font-size: 15px;
+            font-weight: 600;
+            outline: none;
+            user-select: text !important; /* اجازه دادن به تایپ کاربر روی گوشی */
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        /* افکت فوکوس وقتی کاربر روی کادر کلیک می‌کند حاشیه طلایی می‌شود */
+        .input-field:focus {
+            border-color: rgba(212, 175, 55, 0.5);
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.1);
+        }
+
+        /* دکمه ثبت‌نام و رفتن به مرحله بعد */
+        .btn-primary {
+            width: 100%;
+            background: linear-gradient(135deg, #d4af37 0%, #aa841b 100%);
+            border: none;
+            padding: 16px;
+            border-radius: 14px;
+            color: #000000;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(212, 175, 55, 0.2);
+            transition: transform 0.1s ease, opacity 0.3s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary:active {
+            transform: scale(0.97);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* ارورهای نمایشی احتمالی */
+        .error-message {
+            color: #ff4757;
+            font-size: 12px;
+            margin-top: 10px;
+            display: none;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="glow-effect"></div>
+
+    <div class="glass-card">
+        <div class="screen-header">
+            <h2 class="screen-title">Sign Up</h2>
+            <p class="screen-subtitle">Enter your phone number to initialize authentication</p>
+        </div>
+
+        <div class="input-group">
+            <label class="input-label">Phone Number</label>
+            <div class="input-wrapper">
+                <input type="tel" id="phone-input" class="input-field" placeholder="e.g. +989123456789" required>
+            </div>
+            <div id="err-box" class="error-message">Error saving database. Please try again.</div>
+        </div>
+
+        <button id="btn-submit" class="btn-primary" onclick="submitPhoneNumber()">
+            <span>Next Step 🚀</span>
+        </button>
+    </div>
+
+    <script>
+        // اطلاعات دیتابیس Supabase که قبلاً فرستاده بودید به صورت امن در فرانت‌اند
+        const SUPABASE_URL = "https://uakbmplpnejbfvdrcvkl.supabase.co";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVha2JtcGxwbmVqYmZ2ZHJjdmtsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkwNzg2NDِeXAiOjIwOTQ2NTQ2NDJ9.9kYGLceuC3OjJuFUYaBgUJLUmrA6-iQqUmUOpdDyM2k"; 
+
+        async function submitPhoneNumber() {
+            const phoneInput = document.getElementById('phone-input').value.trim();
+            const btnSubmit = document.getElementById('btn-submit');
+            const errBox = document.getElementById('err-box');
+
+            // بررسی خالی نبودن کادر
+            if (!phoneInput) {
+                errBox.innerText = "Please enter a valid phone number.";
+                errBox.style.display = "block";
+                return;
+            }
+
+            // غیرفعال کردن دکمه جهت جلوگیری از کلیک‌های اسپم
+            btnSubmit.disabled = true;
+            btnSubmit.innerHTML = "<span>Processing... ⏳</span>";
+            errBox.style.display = "none";
+
+            try {
+                // ارسال مستقیم اطلاعات به جدول کاربران در Supabase
+                // ما اطلاعات را در وضعیت پندینگ (در انتظار تایید ربات) می‌فرستیم
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/users`, {
+                    method: 'POST',
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=minimal'
+                    },
+                    body: JSON.stringify({
+                        phone: phoneInput,
+                        status: 'pending',
+                        coins: 0
+                    })
+                });
+
+                if (response.ok) {
+                    // ذخیره موقت شماره تلفن در حافظه مرورگر برای استفاده در صفحات بعدی
+                    localStorage.setItem('user_pending_phone', phoneInput);
+                    
+                    // انتقال فوری به صفحه تایید کد
+                    window.location.href = 'sabt2.html';
+                } else {
+                    throw new Error("Supabase error response");
+                }
+
+            } catch (error) {
+                console.error(error);
+                btnSubmit.disabled = false;
+                btnSubmit.innerHTML = "<span>Next Step 🚀</span>";
+                errBox.innerText = "Connection error or number already exists!";
+                errBox.style.display = "block";
+            }
+        }
+    </script>
+</body>
+</html>

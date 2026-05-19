@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>[RE] AI - Create Password</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap">
+    
+    <style>
+        /* ==========================================================================
+           RESET & BASE STYLES (تنظیمات پایه و فونت)
+           ========================================================================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+
+        body {
+            background-color: #0b0c10;
+            color: #ffffff;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .glow-effect {
+            position: absolute;
+            width: 320px;
+            height: 320px;
+            background: radial-gradient(circle, rgba(212, 175, 55, 0.12) 0%, rgba(0,0,0,0) 70%);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* ==========================================================================
+           GLASS CARD DESIGN (کارت شیشه‌ای لوکس)
+           ========================================================================== */
+        .glass-card {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            max-width: 350px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border-radius: 28px;
+            padding: 40px 25px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6);
+            text-align: center;
+        }
+
+        .screen-header {
+            margin-bottom: 30px;
+        }
+
+        .screen-title {
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            color: #ffffff;
+        }
+
+        .screen-subtitle {
+            font-size: 13px;
+            color: #8a8d93;
+            margin-top: 8px;
+            line-height: 1.4;
+        }
+
+        /* ==========================================================================
+           FORM INPUTS (کادرهای ورودی)
+           ========================================================================== */
+        .input-group {
+            margin-bottom: 25px;
+            text-align: left;
+        }
+
+        .input-label {
+            display: block;
+            font-size: 12px;
+            color: #8a8d93;
+            margin-bottom: 8px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .input-field {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 16px;
+            border-radius: 14px;
+            color: #ffffff;
+            font-size: 15px;
+            font-weight: 600;
+            outline: none;
+            user-select: text !important;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .input-field:focus {
+            border-color: rgba(212, 175, 55, 0.5);
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.1);
+        }
+
+        /* ==========================================================================
+           BUTTONS SYSTEM (سیستم دکمه‌ها)
+           ========================================================================== */
+        .btn-primary {
+            width: 100%;
+            background: linear-gradient(135deg, #d4af37 0%, #aa841b 100%);
+            border: none;
+            padding: 16px;
+            border-radius: 14px;
+            color: #000000;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(212, 175, 55, 0.2);
+            transition: transform 0.1s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .btn-primary:active { transform: scale(0.97); }
+        .btn-primary:disabled { opacity: 0.6; }
+
+        .btn-exit-delete {
+            background: none;
+            border: none;
+            color: #4a4d53;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .btn-exit-delete:active {
+            color: #ff4757;
+        }
+
+        .error-message {
+            color: #ff4757;
+            font-size: 12px;
+            margin-top: 10px;
+            display: none;
+            font-weight: 500;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="glow-effect"></div>
+
+    <div class="glass-card">
+        <div class="screen-header">
+            <h2 class="screen-title">Set Password</h2>
+            <p class="screen-subtitle">Create a secure password to complete your account setup</p>
+        </div>
+
+        <div class="input-group">
+            <label class="input-label">Choose Password</label>
+            <input type="password" id="password-input" class="input-field" placeholder="Minimum 4 characters" minlength="4" required>
+            <div id="err-box" class="error-message">Error saving registration. Please try again.</div>
+        </div>
+
+        <button id="btn-final" class="btn-primary" onclick="finalizeRegistration()">
+            Complete & Enter 🚀
+        </button>
+
+        <button id="btn-exit" class="btn-exit-delete" onclick="handleExitAndDelete()">
+            Cancel & Exit ❌
+        </button>
+    </div>
+
+    <script>
+        const SUPABASE_URL = "https://uakbmplpnejbfvdrcvkl.supabase.co";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVha2JtcGxwbmVqYmZ2ZHJjdmtsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkwNzg2NDِeXAiOjIwOTQ2NTQ2NDJ9.9kYGLceuC3OjJuFUYaBgUJLUmrA6-iQqUmUOpdDyM2k"; 
+
+        /* ==========================================================================
+           سیستم ضد بازگشت و ریفرش (Anti-Back & Anti-Refresh)
+           ========================================================================== */
+        history.pushState(null, null, location.href);
+        window.onpopstate = function () {
+            history.pushState(null, null, location.href);
+        };
+
+        async function finalizeRegistration() {
+            const passwordInput = document.getElementById('password-input').value.trim();
+            const btnFinal = document.getElementById('btn-final');
+            const errBox = document.getElementById('err-box');
+            const pendingPhone = localStorage.getItem('user_pending_phone');
+
+            if (!pendingPhone) {
+                errBox.innerText = "Session expired. Restart from Sign Up.";
+                errBox.style.display = "block";
+                return;
+            }
+
+            if (passwordInput.length < 4) {
+                errBox.innerText = "Password must be at least 4 characters long.";
+                errBox.style.display = "block";
+                return;
+            }
+
+            btnFinal.disabled = true;
+            btnFinal.innerHTML = "Saving Profile... ⏳";
+            errBox.style.display = "none";
+
+            try {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/users?phone=eq.${encodeURIComponent(pendingPhone)}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=minimal'
+                    },
+                    body: JSON.stringify({
+                        password: passwordInput,
+                        status: 'verified',
+                        coins: 0
+                    })
+                });
+
+                if (response.ok) {
+                    localStorage.setItem('user_logged_in_phone', pendingPhone);
+                    localStorage.removeItem('user_pending_phone');
+                    window.location.href = 'main.html';
+                } else {
+                    throw new Error("Supabase update failed");
+                }
+            } catch (error) {
+                console.error(error);
+                btnFinal.disabled = false;
+                btnFinal.innerHTML = "Complete & Enter 🚀";
+                errBox.innerText = "Network error. Failed to save credentials.";
+                errBox.style.display = "block";
+            }
+        }
+
+        /* ==========================================================================
+           سیستم هشدار خروج و حذف قطعی از دیتابیس
+           ========================================================================== */
+        async function handleExitAndDelete() {
+            const pendingPhone = localStorage.getItem('user_pending_phone');
+            const btnExit = document.getElementById('btn-exit');
+            const errBox = document.getElementById('err-box');
+
+            if (!pendingPhone) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            // ۱. نمایش پیام تایید و اخطار درخواستی شما به کاربر
+            const message = "If you exit, your registration progress will be deleted and you must verify your phone number and get a new code from the bot again. Are you sure?";
+            const userConfirmed = confirm(message);
+
+            // اگر کاربر انصراف داد، عملیات را متوقف کن
+            if (!userConfirmed) {
+                return;
+            }
+
+            // ۲. اگر کاربر تایید کرد، اقدام به حذف از دیتابیس میکند
+            btnExit.innerText = "Deleting account... ⏳";
+            btnExit.disabled = true;
+
+            try {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/users?phone=eq.${encodeURIComponent(pendingPhone)}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    }
+                });
+
+                if (response.ok) {
+                    localStorage.removeItem('user_pending_phone');
+                    window.location.href = 'index.html';
+                } else {
+                    throw new Error("Delete request failed");
+                }
+            } catch (error) {
+                console.error(error);
+                btnExit.innerText = "Cancel & Exit ❌";
+                btnExit.disabled = false;
+                errBox.innerText = "Connection error. Could not delete database row.";
+                errBox.style.display = "block";
+            }
+        }
+    </script>
+</body>
+</html>

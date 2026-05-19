@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>[RE] AI Premium Gateway</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap">
+    
+    <style>
+        /* ==========================================================================
+           RESET & BASE STYLES (تنظیمات پایه و فونت)
+           ========================================================================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+
+        body {
+            background-color: #0b0c10; /* مشکی ذغالی بسیار عمیق */
+            color: #ffffff;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* ==========================================================================
+           GLOW & GLASS EFFECTS (جادوی شیشه‌ای مات و هاله‌های نورانی)
+           ========================================================================== */
+        .glow-effect {
+            position: absolute;
+            width: 320px;
+            height: 320px;
+            background: radial-gradient(circle, rgba(212, 175, 55, 0.15) 0%, rgba(0,0,0,0) 70%);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .glass-card {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            max-width: 350px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border-radius: 28px; /* گوشه‌های فوق‌العاده نرم و لوکس */
+            padding: 40px 25px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            text-align: center;
+        }
+
+        /* ==========================================================================
+           BRAND LOGO ELEMENTS (المان‌های لوگوی برند)
+           ========================================================================== */
+        .logo-container {
+            margin-bottom: 35px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* انیمیشن لودینگ طلایی ملایم و لوکس در بالای برند */
+        .pulse-loader {
+            width: 60px;
+            height: 60px;
+            border: 2.5px solid transparent;
+            border-top-color: #d4af37; /* طلایی شامپاینی */
+            border-radius: 50%;
+            animation: spin 1.5s linear infinite;
+            margin-bottom: 18px;
+        }
+
+        .brand-title {
+            font-size: 26px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            color: #ffffff;
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.15);
+        }
+
+        .brand-subtitle {
+            font-size: 12px;
+            color: #8a8d93; /* نقره‌ای کدر */
+            letter-spacing: 1px;
+            margin-top: 5px;
+            font-weight: 500;
+        }
+
+        /* ==========================================================================
+           BUTTONS SYSTEM (سیستم دکمه‌های دو گزینه‌ای)
+           ========================================================================== */
+        .button-group {
+            display: flex;
+            flex-direction: column;
+            gap: 15px; /* ایجاد فاصله استاندارد بین دکمه‌ها */
+            margin-top: 10px;
+        }
+
+        /* دکمه اصلی و طلایی برای ثبت‌نام */
+        .btn-primary {
+            width: 100%;
+            background: linear-gradient(135deg, #d4af37 0%, #aa841b 100%);
+            border: none;
+            padding: 16px;
+            border-radius: 14px; /* انحنای استاندارد آیفون */
+            color: #000000;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(212, 175, 55, 0.2);
+            transition: transform 0.1s ease, box-shadow 0.3s ease;
+        }
+
+        /* دکمه دوم و شیشه‌ای برای ورود */
+        .btn-secondary {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 16px;
+            border-radius: 14px;
+            color: #ffffff;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.1s ease, background 0.3s ease;
+        }
+
+        /* افکت‌های لمس زنده (Active States) مخصوص موبایل */
+        .btn-primary:active {
+            transform: scale(0.97);
+            box-shadow: 0 4px 10px rgba(212, 175, 55, 0.1);
+        }
+
+        .btn-secondary:active {
+            transform: scale(0.97);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        /* ==========================================================================
+           ANIMATIONS & FOOTER (انیمیشن‌ها و پاورقی)
+           ========================================================================== */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .footer-text {
+            font-size: 11px;
+            color: #4a4d53;
+            margin-top: 35px;
+            letter-spacing: 0.5px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="glow-effect"></div>
+
+    <div class="glass-card">
+        <div class="logo-container">
+            <div class="pulse-loader"></div>
+            <h1 class="brand-title">[RE] PLATFORM</h1>
+            <p class="brand-subtitle">PREMIUM MINI APP SYSTEM</p>
+        </div>
+        
+        <div class="button-group">
+            <button class="btn-primary" onclick="window.location.href='sabt.html'">
+                Create Account (Sign Up) 🚀
+            </button>
+            
+            <button class="btn-secondary" onclick="window.location.href='vorud.html'">
+                Already Member (Sign In) 🔐
+            </button>
+        </div>
+
+        <p class="footer-text">Secured Cloud Infrastructure</p>
+    </div>
+
+</body>
+</html>
