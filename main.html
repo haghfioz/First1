@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>[RE] AI - Main Dashboard</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap">
+    
+    <style>
+        /* ==========================================================================
+           RESET & BASE STYLES
+           ========================================================================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+
+        body {
+            background-color: #0b0c10;
+            color: #ffffff;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .glow-effect {
+            position: absolute;
+            width: 350px;
+            height: 350px;
+            background: radial-gradient(circle, rgba(212, 175, 55, 0.08) 0%, rgba(0,0,0,0) 70%);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* ==========================================================================
+           HEADER SYSTEM (هدر امن لوکس)
+           ========================================================================== */
+        header {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 16px;
+            background: rgba(255, 255, 255, 0.02);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .user-phone {
+            font-size: 14px;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-logout {
+            background: none;
+            border: none;
+            color: #ff4757;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-align: left;
+        }
+
+        .coin-counter-box {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.04);
+            padding: 8px 14px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .coin-amount {
+            font-size: 18px;
+            font-weight: 700;
+            color: #ffe066;
+        }
+
+        /* المان سکه کوچک هدر */
+        .mini-coin {
+            width: 22px;
+            height: 22px;
+            background: linear-gradient(135deg, #ffe066 0%, #d4af37 50%, #aa841b 100%);
+            border-radius: 50%;
+            border: 1px solid #ffe066;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .mini-square {
+            width: 8px;
+            height: 8px;
+            border: 1px solid #000000;
+        }
+
+        /* ==========================================================================
+           PLAYGROUND (محیط پرواز و جابجایی سکه‌ها)
+           ========================================================================== */
+        .playground {
+            flex: 1;
+            position: relative;
+            z-index: 5;
+            margin: 15px;
+            background: rgba(255, 255, 255, 0.01);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            border-radius: 24px;
+            overflow: hidden;
+        }
+
+        /* ساختار ۳ سکه متحرک در صفحه بازی */
+        .game-coin {
+            position: absolute;
+            width: 55px;
+            height: 55px;
+            background: linear-gradient(135deg, #ffe066 0%, #d4af37 50%, #aa841b 100%);
+            border-radius: 50%;
+            border: 2.5px solid #ffe066;
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.4), inset 0 0 5px rgba(0,0,0,0.3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 1.2s ease-in-out; /* سرعت بالانس جابجایی */
+            z-index: 6;
+            transform: scale(1);
+        }
+
+        .game-coin:active {
+            transform: scale(0.85);
+            transition: transform 0.05s ease;
+        }
+
+        .game-square {
+            width: 18px;
+            height: 18px;
+            border: 2px solid #000000;
+        }
+
+        /* ==========================================================================
+           CONTROLS FOOTER (منوی دکمه‌های پایینی خارج از محیط بازی)
+           ========================================================================== */
+        .controls-footer {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px 30px 20px;
+        }
+
+        /* دکمه ماینینگ سمت چپ */
+        .btn-mining {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 14px;
+            padding: 15px 20px;
+            color: #8a8d93;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-mining.active {
+            background: rgba(212, 175, 55, 0.1);
+            border-color: #d4af37;
+            color: #d4af37;
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.15);
+        }
+
+        /* دکمه صندوقچه جایزه سمت راست */
+        .btn-chest {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 14px;
+            padding: 15px 22px;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background 0.3s ease;
+        }
+        .btn-chest:active {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* ==========================================================================
+           MODALS & ALERTS (پاپ‌آپ‌های شیک اختصاصی)
+           ========================================================================== */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.show {
+            opacity: 1; pointer-events: auto;
+        }
+
+        .glass-modal {
+            width: 85%;
+            max-width: 320px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            padding: 30px 20px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+        }
+
+        .modal-title { font-size: 18px; font-weight: 700; margin-bottom: 12px; }
+        .modal-desc { font-size: 13px; color: #8a8d93; line-height: 1.5; margin-bottom: 25px; }
+
+        .modal-btn-group {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn-modal-primary {
+            flex: 1;
+            background: linear-gradient(135deg, #d4af37 0%, #aa841b 100%);
+            border: none; padding: 12px; border-radius: 10px;
+            color: #000000; font-size: 13px; font-weight: 700; cursor: pointer;
+        }
+
+        .btn-modal-secondary {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1); padding: 12px; border-radius: 10px;
+            color: #ffffff; font-size: 13px; font-weight: 600; cursor: pointer;
+        }
+    </style>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
+        import { getDatabase, ref, get, update, onValue } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDQ7-AJGgjhxFxMdgoPQKiNt0YanP0ryHo",
+            authDomain: "haghfiozfirst1.firebaseapp.com",
+            databaseURL: "https://haghfiozfirst1-default-rtdb.firebaseio.com",
+            projectId: "haghfiozfirst1",
+            storageBucket: "haghfiozfirst1.firebasestorage.app",
+            messagingSenderId: "477284748293",
+            appId: "1:477284748293:web:b5ecca49f844662c7fa06c"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        let userPhone = localStorage.getItem('user_logged_in_phone');
+        
+        // قفل امنیتی ورود: اگر شماره در حافظه نبود کلا به صفحه اصلی پرتاب شود
+        if (!userPhone) {
+            window.location.href = 'index.html';
+        }
+
+        const safePhoneKey = userPhone.replace(/[.#$[\]]/g, "");
+        const userRef = ref(database, 'users/' + safePhoneKey);
+
+        let currentCoins = 0;
+        let isMiningActive = false;
+        let miningInterval = null;
+
+        // فرمت کردن شماره تلفن به صورت امن برای هدر
+        function maskPhoneNumber(phone) {
+            if(phone.length > 7) {
+                return phone.substring(0, 4) + "***" + phone.substring(phone.length - 4);
+            }
+            return phone;
+        }
+        document.getElementById('display-phone').innerText = maskPhoneNumber(userPhone);
+
+        /* ==========================================================================
+           قفل کامل خروج ناخواسته (Anti-Back & Anti-Refresh Loop)
+           ========================================================================== */
+        history.pushState(null, null, location.href);
+        window.onpopstate = function () {
+            history.pushState(null, null, location.href);
+        };
+
+        /* ==========================================================================
+           شنود زنده فایربیس (Realtime Data Sync)
+           ========================================================================== */
+        onValue(userRef, (snapshot) => {
+            if (snapshot.exists()) {
+                const data = snapshot.val();
+                currentCoins = data.coins || 0;
+                document.getElementById('coin-display').innerText = currentCoins.toLocaleString();
+                
+                // هندل کردن لود اولیه وضعیت ماینینگ از فایربیس
+                const firebaseMining = data.mining_status === 'on';
+                if(firebaseMining !== isMiningActive) {
+                    isMiningActive = firebaseMining;
+                    updateMiningUI();
+                }
+            }
+        });
+
+        /* ==========================================================================
+           سیستم جابجایی تصادفی سکه‌ها (Flying Coins Mechanics)
+           ========================================================================== */
+        const coinsElements = document.querySelectorAll('.game-coin');
+        const playground = document.getElementById('game-playground');
+
+        function moveCoins() {
+            if (isMiningActive) return; // اگر ماین روشن بود، سکه‌ها جابجا نشوند
+            
+            const pWidth = playground.clientWidth - 65;
+            const pHeight = playground.clientHeight - 65;
+
+            coinsElements.forEach(coin => {
+                const randomX = Math.floor(Math.random() * pWidth);
+                const randomY = Math.floor(Math.random() * pHeight);
+                coin.style.left = `${randomX}px`;
+                coin.style.top = `${randomY}px`;
+            });
+        }
+
+        // حرکت اولیه و اجرای لوپ جابجایی تصادفی سکه‌ها هر ۱.۳ ثانیه
+        setInterval(moveCoins, 1300);
+
+        // شکار سکه‌ها و اضافه شدن امتیاز تپ
+        window.handleCoinTap = async function(element) {
+            if (isMiningActive) {
+                showAlert("Mining is Active!", "You cannot catch coins while auto-mining is turned on.");
+                return;
+            }
+
+            // افکت انیمیشن سریع هنگام لمس
+            element.style.transform = "scale(0.8)";
+            setTimeout(() => { element.style.transform = "scale(1)"; }, 100);
+
+            try {
+                await update(userRef, { coins: currentCoins + 5 });
+            } catch (e) { console.error(e); }
+        };
+
+        /* ==========================================================================
+           سیستم ماینینگ خودکار هوشمند (آفلاین + آنلاین)
+           ========================================================================== */
+        window.toggleMining = async function() {
+            const nextState = !isMiningActive;
+            const now = Date.now();
+
+            const updates = {
+                mining_status: nextState ? 'on' : 'off',
+                last_mining_check: now
+            };
+
+            // اگر تازه روشن شده، محاسبه آفلاین نیاز ندارد، فقط زمان استارت ثبت می‌شود
+            await update(userRef, updates);
+            isMiningActive = nextState;
+            updateMiningUI();
+        };
+
+        function updateMiningUI() {
+            const btn = document.getElementById('btn-mining-ctrl');
+            if (isMiningActive) {
+                btn.innerText = "Auto Mine: ON ⚡";
+                btn.classList.add('active');
+                // پنهان کردن موقت سکه‌ها برای تمرکز روی ماینینگ
+                coinsElements.forEach(c => c.style.display = 'none');
+                startLiveMiningTimer();
+            } else {
+                btn.innerText = "Auto Mine: OFF 💤";
+                btn.classList.remove('active');
+                coinsElements.forEach(c => c.style.display = 'flex');
+                if(miningInterval) clearInterval(miningInterval);
+            }
+        }
+
+        function startLiveMiningTimer() {
+            if(miningInterval) clearInterval(miningInterval);
+            // هر ۱ دقیقه آنلاین بودن ۵۰۰ سکه اضافه و کلید تایم آپدیت می‌شود
+            miningInterval = setInterval(async () => {
+                if (!isMiningActive) return;
+                const now = Date.now();
+                await update(userRef, {
+                    coins: currentCoins + 500,
+                    last_mining_check: now
+                });
+            }, 60000);
+        }
+
+        // بررسی و اعمال سود ماینینگ در زمان آفلاین بودن کاربر
+        async function checkOfflineMining() {
+            try {
+                const snapshot = await get(userRef);
+                if(snapshot.exists()) {
+                    const data = snapshot.val();
+                    if(data.mining_status === 'on' && data.last_mining_check) {
+                        const now = Date.now();
+                        const diffMs = now - data.last_mining_check;
+                        const diffMinutes = Math.floor(diffMs / 60000);
+
+                        if(diffMinutes > 0) {
+                            const offlineReward = diffMinutes * 500;
+                            await update(userRef, {
+                                coins: data.coins + offlineReward,
+                                last_mining_check: now
+                            });
+                            showAlert("Mining Revenue!", `While you were away, auto-mining generated ${offlineReward.toLocaleString()} coins for you!`);
+                        }
+                    }
+                }
+            } catch(e) { console.error(e); }
+        }
+        
+        // اجرای چک آفلاین بلافاصله پس از لود کامل صفحه
+        setTimeout(checkOfflineMining, 1500);
+
+        /* ==========================================================================
+           صندوقچه جایزه ۲۴ ساعته (۵,۰۰۰ سکه پاداش)
+           ========================================================================== */
+        window.claimDailyChest = async function() {
+            try {
+                const snapshot = await get(userRef);
+                if (!snapshot.exists()) return;
+
+                const data = snapshot.val();
+                const now = Date.now();
+                const lastClaim = data.last_chest_claim || 0;
+                const oneDayMs = 24 * 60 * 60 * 1000; // ۲۴ ساعت به میلی‌ثانیه
+
+                if (now - lastClaim >= oneDayMs) {
+                    // اهدای جایزه ۵۰۰۰ تایی
+                    await update(userRef, {
+                        coins: currentCoins + 5000,
+                        last_chest_claim: now
+                    });
+                    showAlert("🎁 Reward Claimed!", "Success! 5,000 premium coins have been added to your balance.");
+                } else {
+                    // محاسبه زمان دقیق باقی‌مانده
+                    const timeLeft = oneDayMs - (now - lastClaim);
+                    const hours = Math.floor(timeLeft / (1000 * 60 * 60));
+                    const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+                    showAlert("Access Denied", `Please wait ${hours}h ${minutes}m before opening the daily reward chest again.`);
+                }
+            } catch (e) { console.error(e); }
+        };
+
+        /* ==========================================================================
+           سیستم پاپ‌آپ‌های اختصاصی و دکمه LOGOUT
+           ========================================================================== */
+        const globalOverlay = document.getElementById('global-alert');
+        window.showAlert = function(title, desc) {
+            document.getElementById('alert-title').innerText = title;
+            document.getElementById('alert-desc').innerText = desc;
+            globalOverlay.classList.add('show');
+        };
+        window.closeAlert = function() {
+            globalOverlay.classList.remove('show');
+        };
+
+        const logoutOverlay = document.getElementById('logout-alert');
+        window.triggerLogoutPrompt = function() {
+            logoutOverlay.classList.add('show');
+        };
+        window.closeLogoutPrompt = function() {
+            logoutOverlay.classList.remove('show');
+        };
+        window.confirmLogout = function() {
+            localStorage.removeItem('user_logged_in_phone');
+            window.location.href = 'index.html';
+        };
+    </script>
+</head>
+<body>
+
+    <div class="glow-effect"></div>
+
+    <header>
+        <div class="user-info">
+            <span id="display-phone" class="user-phone">+98912***34</span>
+            <button class="btn-logout" onclick="window.triggerLogoutPrompt()">Logout 🚪</button>
+        </div>
+        <div class="coin-counter-box">
+            <span id="coin-display" class="coin-amount">0</span>
+            <div class="mini-coin">
+                <div class="mini-square"></div>
+            </div>
+        </div>
+    </header>
+
+    <div id="game-playground" class="playground">
+        <div class="game-coin" style="top:20%; left:15%;" onclick="window.handleCoinTap(this)">
+            <div class="game-square"></div>
+        </div>
+        <div class="game-coin" style="top:50%; left:45%;" onclick="window.handleCoinTap(this)">
+            <div class="game-square"></div>
+        </div>
+        <div class="game-coin" style="top:70%; left:75%;" onclick="window.handleCoinTap(this)">
+            <div class="game-sq
