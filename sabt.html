@@ -79,7 +79,7 @@
         }
 
         /* ==========================================================================
-           FORM INPUTS (کادرهای ورودی شیک و مدرن)
+           FORM INPUTS (کادرهای ورودی)
            ========================================================================== */
         .input-group {
             margin-bottom: 25px;
@@ -100,7 +100,6 @@
             position: relative;
         }
 
-        /* طراحی کادر شماره تلفن متناسب با تم اپل و کریپتو */
         .input-field {
             width: 100%;
             background: rgba(255, 255, 255, 0.04);
@@ -111,17 +110,15 @@
             font-size: 15px;
             font-weight: 600;
             outline: none;
-            user-select: text !important; /* اجازه دادن به تایپ کاربر روی گوشی */
+            user-select: text !important;
             transition: border-color 0.3s ease, box-shadow 0.3s ease;
         }
 
-        /* افکت فوکوس وقتی کاربر روی کادر کلیک می‌کند حاشیه طلایی می‌شود */
         .input-field:focus {
             border-color: rgba(212, 175, 55, 0.5);
             box-shadow: 0 0 15px rgba(212, 175, 55, 0.1);
         }
 
-        /* دکمه ثبت‌نام و رفتن به مرحله بعد */
         .btn-primary {
             width: 100%;
             background: linear-gradient(135deg, #d4af37 0%, #aa841b 100%);
@@ -133,7 +130,7 @@
             font-weight: 700;
             cursor: pointer;
             box-shadow: 0 8px 20px rgba(212, 175, 55, 0.2);
-            transition: transform 0.1s ease, opacity 0.3s ease;
+            transition: transform(0.1s) ease, opacity 0.3s ease;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -149,7 +146,6 @@
             cursor: not-allowed;
         }
 
-        /* ارورهای نمایشی احتمالی */
         .error-message {
             color: #ff4757;
             font-size: 12px;
@@ -158,6 +154,84 @@
             font-weight: 500;
         }
     </style>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
+        import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
+
+        // کانفیگ اختصاصی فایربیس شما
+        const firebaseConfig = {
+            apiKey: "AIzaSyDQ7-AJGgjhxFxMdgoPQKiNt0YanP0ryHo",
+            authDomain: "haghfiozfirst1.firebaseapp.com",
+            databaseURL: "https://haghfiozfirst1-default-rtdb.firebaseio.com",
+            projectId: "haghfiozfirst1",
+            storageBucket: "haghfiozfirst1.firebasestorage.app",
+            messagingSenderId: "477284748293",
+            appId: "1:477284748293:web:b5ecca49f844662c7fa06c"
+        };
+
+        // راه‌اندازی ابزارهای فایربیس در بک‌گراند
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        // معرفی تابع اصلی به مرورگر جهت استفاده در کلیک دکمه HTML
+        window.submitPhoneNumber = async function() {
+            const phoneInput = document.getElementById('phone-input').value.trim();
+            const btnSubmit = document.getElementById('btn-submit');
+            const errBox = document.getElementById('err-box');
+
+            if (!phoneInput) {
+                errBox.innerText = "Please enter a valid phone number.";
+                errBox.style.display = "block";
+                return;
+            }
+
+            // قفل کردن دکمه جهت جلوگیری از کلیک مکرر روی گوشی
+            btnSubmit.disabled = true;
+            btnSubmit.innerHTML = "<span>Processing... ⏳</span>";
+            errBox.style.display = "none";
+
+            // فایربیس کاراکتر "." یا علائم خاص را در کلیدها دوست ندارد؛ شماره را فیلتر یا ساده می‌کنیم
+            const safePhoneKey = phoneInput.replace(/[.#$[\]]/g, "");
+
+            try {
+                // ۱. بررسی اینکه آیا این شماره از قبل ثبت‌نام قطعی کرده یا خیر
+                const userRef = ref(database, 'users/' + safePhoneKey);
+                const snapshot = await get(userRef);
+
+                if (snapshot.exists()) {
+                    const existingUser = snapshot.val();
+                    if (existingUser.status === 'verified') {
+                        errBox.innerText = "This phone number already exists!";
+                        errBox.style.display = "block";
+                        btnSubmit.disabled = false;
+                        btnSubmit.innerHTML = "<span>Next Step 🚀</span>";
+                        return;
+                    }
+                }
+
+                // ۲. ایجاد یا رایت شماره در دیتابیس روی وضعیت پندینگ
+                await set(userRef, {
+                    phone: phoneInput,
+                    status: 'pending',
+                    coins: 0
+                });
+
+                // ذخیره موقت شماره در حافظه گوشی برای صفحات بعدی
+                localStorage.setItem('user_pending_phone', phoneInput);
+                
+                // انتقال به صفحه تایید کد
+                window.location.href = 'sabt2.html';
+
+            } catch (error) {
+                console.error(error);
+                btnSubmit.disabled = false;
+                btnSubmit.innerHTML = "<span>Next Step 🚀</span>";
+                errBox.innerText = "Database connection error. Try again.";
+                errBox.style.display = "block";
+            }
+        }
+    </script>
 </head>
 <body>
 
@@ -177,69 +251,10 @@
             <div id="err-box" class="error-message">Error saving database. Please try again.</div>
         </div>
 
-        <button id="btn-submit" class="btn-primary" onclick="submitPhoneNumber()">
+        <button id="btn-submit" class="btn-primary" onclick="window.submitPhoneNumber()">
             <span>Next Step 🚀</span>
         </button>
     </div>
 
-    <script>
-        // اطلاعات دیتابیس Supabase که قبلاً فرستاده بودید به صورت امن در فرانت‌اند
-        const SUPABASE_URL = "https://uakbmplpnejbfvdrcvkl.supabase.co";
-        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVha2JtcGxwbmVqYmZ2ZHJjdmtsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkwNzg2NDِeXAiOjIwOTQ2NTQ2NDJ9.9kYGLceuC3OjJuFUYaBgUJLUmrA6-iQqUmUOpdDyM2k"; 
-
-        async function submitPhoneNumber() {
-            const phoneInput = document.getElementById('phone-input').value.trim();
-            const btnSubmit = document.getElementById('btn-submit');
-            const errBox = document.getElementById('err-box');
-
-            // بررسی خالی نبودن کادر
-            if (!phoneInput) {
-                errBox.innerText = "Please enter a valid phone number.";
-                errBox.style.display = "block";
-                return;
-            }
-
-            // غیرفعال کردن دکمه جهت جلوگیری از کلیک‌های اسپم
-            btnSubmit.disabled = true;
-            btnSubmit.innerHTML = "<span>Processing... ⏳</span>";
-            errBox.style.display = "none";
-
-            try {
-                // ارسال مستقیم اطلاعات به جدول کاربران در Supabase
-                // ما اطلاعات را در وضعیت پندینگ (در انتظار تایید ربات) می‌فرستیم
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/users`, {
-                    method: 'POST',
-                    headers: {
-                        'apikey': SUPABASE_ANON_KEY,
-                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-                        'Content-Type': 'application/json',
-                        'Prefer': 'return=minimal'
-                    },
-                    body: JSON.stringify({
-                        phone: phoneInput,
-                        status: 'pending',
-                        coins: 0
-                    })
-                });
-
-                if (response.ok) {
-                    // ذخیره موقت شماره تلفن در حافظه مرورگر برای استفاده در صفحات بعدی
-                    localStorage.setItem('user_pending_phone', phoneInput);
-                    
-                    // انتقال فوری به صفحه تایید کد
-                    window.location.href = 'sabt2.html';
-                } else {
-                    throw new Error("Supabase error response");
-                }
-
-            } catch (error) {
-                console.error(error);
-                btnSubmit.disabled = false;
-                btnSubmit.innerHTML = "<span>Next Step 🚀</span>";
-                errBox.innerText = "Connection error or number already exists!";
-                errBox.style.display = "block";
-            }
-        }
-    </script>
 </body>
 </html>
