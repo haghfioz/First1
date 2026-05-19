@@ -62,7 +62,7 @@
         }
 
         /* ==========================================================================
-           BRAND LOGO ELEMENTS (المان‌های لوگوی برند)
+           BRAND LOGO ELEMENTS (المان‌های لوگوی برند و سکه طلایی چرخان)
            ========================================================================== */
         .logo-container {
             margin-bottom: 35px;
@@ -71,15 +71,31 @@
             align-items: center;
         }
 
-        /* انیمیشن لودینگ طلایی ملایم و لوکس در بالای برند */
-        .pulse-loader {
+        /* طراحی سکه طلایی با افکت سه‌بعدی و سایه درخشان */
+        .gold-coin {
             width: 60px;
             height: 60px;
-            border: 2.5px solid transparent;
-            border-top-color: #d4af37; /* طلایی شامپاینی */
+            background: linear-gradient(135deg, #ffe066 0%, #d4af37 50%, #aa841b 100%);
             border-radius: 50%;
-            animation: spin 1.5s linear infinite;
+            border: 3px solid #ffe066;
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.6),
+                        inset 0 0 8px rgba(0, 0, 0, 0.3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
             margin-bottom: 18px;
+            animation: spinCoin 3s linear infinite;
+            transform-style: preserve-3d;
+            perspective: 1000px;
+        }
+
+        /* علامت مربع خالی متقارن در مرکز سکه */
+        .coin-square {
+            width: 20px;
+            height: 20px;
+            border: 2.5px solid #000000; /* رنگ کانتور داخلی مربع متمایز با رنگ طلا */
+            background: transparent;
+            border-radius: 4px; /* انحنای بسیار کم برای زیبایی مربع */
         }
 
         .brand-title {
@@ -151,9 +167,10 @@
         /* ==========================================================================
            ANIMATIONS & FOOTER (انیمیشن‌ها و پاورقی)
            ========================================================================== */
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        /* انیمیشن چرخشی سه بعدی سکه به دور خود */
+        @keyframes spinCoin {
+            0% { transform: rotateY(0deg); }
+            100% { transform: rotateY(360deg); }
         }
 
         .footer-text {
@@ -170,7 +187,9 @@
 
     <div class="glass-card">
         <div class="logo-container">
-            <div class="pulse-loader"></div>
+            <div class="gold-coin">
+                <div class="coin-square"></div>
+            </div>
             <h1 class="brand-title">[RE] PLATFORM</h1>
             <p class="brand-subtitle">PREMIUM MINI APP SYSTEM</p>
         </div>
