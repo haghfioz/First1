@@ -39,12 +39,12 @@
         }
 
         /* ==========================================================================
-           HEADER SYSTEM (هدر امن و لوکس)
+           HEADER SYSTEM
            ========================================================================== */
         header {
             position: relative; z-index: 10;
             display: flex; justify-content: space-between; align-items: center;
-            padding: 16px 16px 20px 16px;
+            padding: 16px;
             background: rgba(255, 255, 255, 0.02);
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(10px);
@@ -72,7 +72,6 @@
 
         .coin-amount { font-size: 20px; font-weight: 700; color: #ffe066; }
 
-        /* سکه هدر با مربع اختصاصی */
         .header-coin {
             width: 22px; height: 22px;
             background: linear-gradient(135deg, #ffe066 0%, #d4af37 50%, #aa841b 100%);
@@ -84,19 +83,18 @@
         .header-square { width: 8px; height: 8px; border: 1.5px solid #000000; }
 
         /* ==========================================================================
-           PLAYGROUND (محیط پرواز و شکار سکه‌ها)
+           PLAYGROUND
            ========================================================================== */
         .playground {
             flex: 1;
             position: relative; z-index: 5;
-            margin: 15px 15px 5px 15px; /* فاصله پایینی باکس بازی کمتر شد تا فضا باز شود */
+            margin: 15px 15px 10px 15px;
             background: rgba(255, 255, 255, 0.01);
             border: 1px solid rgba(255, 255, 255, 0.03);
             border-radius: 24px;
             overflow: hidden;
         }
 
-        /* ساختار سکه متحرک */
         .game-coin {
             position: absolute;
             width: 60px; height: 60px;
@@ -116,7 +114,6 @@
             transition: transform 0.05s ease;
         }
 
-        /* آیکون مربع داخلی سکه بازی */
         .game-square {
             width: 18px; height: 18px;
             background: transparent;
@@ -124,16 +121,15 @@
         }
 
         /* ==========================================================================
-           CONTROLS FOOTER (منوی دکمه‌های پایینی خارج از محیط بازی) - اصلاح ارتفاع دکمه‌ها
+           CONTROLS FOOTER (اصلاح منوی پایینی برای جلوگیری از بیرون زدگی)
            ========================================================================== */
         .controls-footer {
             position: relative; z-index: 10;
             display: flex; justify-content: space-between; align-items: center;
-            padding: 15px 20px 55px 20px; /* افزایش پدینگ پایینی برای هدایت دکمه‌ها به سمت بالا */
+            padding: 10px 20px 25px 20px; /* پدینگ استاندارد و ایمن برای موبایل */
             background: transparent;
         }
 
-        /* دکمه ماینینگ سمت چپ */
         .btn-mining {
             background: rgba(255, 255, 255, 0.04);
             border: 1px solid rgba(255, 255, 255, 0.1);
@@ -154,7 +150,6 @@
             box-shadow: 0 0 12px rgba(212, 175, 55, 0.15);
         }
 
-        /* دکمه صندوقچه جایزه سمت راست */
         .btn-chest {
             background: rgba(255, 255, 255, 0.04);
             border: 1px solid rgba(255, 255, 255, 0.1);
@@ -168,12 +163,13 @@
         .btn-chest:active { background: rgba(255, 255, 255, 0.08); }
 
         /* ==========================================================================
-           MODALS & ALERTS (پاپ‌آپ‌های اختصاصی)
+           MODALS & ALERTS (اصلاح دکمه‌ها و تضمین نمایش پاپ‌آپ)
            ========================================================================== */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(0, 0, 0, 0.7);
+            background: rgba(0, 0, 0, 0.75);
             backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
             z-index: 100;
             display: flex; justify-content: center; align-items: center;
             opacity: 0; pointer-events: none;
@@ -183,31 +179,38 @@
         .modal-overlay.show { opacity: 1; pointer-events: auto; }
 
         .glass-modal {
-            width: 85%; max-width: 320px;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            width: 88%; max-width: 320px;
+            background: rgba(20, 21, 25, 0.95); /* رنگ تیره‌تر برای خوانایی دکمه‌ها */
+            border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 24px;
-            padding: 30px 20px;
+            padding: 24px 20px;
             text-align: center;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+            display: flex;
+            flex-direction: column;
         }
 
-        .modal-title { font-size: 18px; font-weight: 700; margin-bottom: 12px; }
-        .modal-desc { font-size: 13px; color: #8a8d93; line-height: 1.5; margin-bottom: 25px; }
+        .modal-title { font-size: 18px; font-weight: 700; margin-bottom: 12px; color: #ffffff; }
+        .modal-desc { font-size: 13px; color: #8a8d93; line-height: 1.6; margin-bottom: 24px; }
 
-        .modal-btn-group { display: flex; gap: 12px; }
+        .modal-btn-group { 
+            display: flex; 
+            gap: 12px; 
+            width: 100%;
+            position: relative; z-index: 110;
+        }
 
         .btn-modal-primary {
             flex: 1;
             background: linear-gradient(135deg, #d4af37 0%, #aa841b 100%);
-            border: none; padding: 12px; border-radius: 10px;
+            border: none; padding: 14px; border-radius: 12px;
             color: #000000; font-size: 13px; font-weight: 700; cursor: pointer;
         }
 
         .btn-modal-secondary {
             flex: 1;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1); padding: 12px; border-radius: 10px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12); padding: 14px; border-radius: 12px;
             color: #ffffff; font-size: 13px; font-weight: 600; cursor: pointer;
         }
     </style>
@@ -251,7 +254,7 @@
         document.getElementById('display-phone').innerText = maskPhoneNumber(userPhone);
 
         /* ==========================================================================
-           قفل کامل خروج ناخواسته (Anti-Back System)
+           ANTI-BACK LOCK
            ========================================================================== */
         history.pushState(null, null, location.href);
         window.onpopstate = function () {
@@ -259,7 +262,7 @@
         };
 
         /* ==========================================================================
-           شنود زنده فایربیس
+           REALTIME DB SYNC
            ========================================================================== */
         onValue(userRef, (snapshot) => {
             if (snapshot.exists()) {
@@ -276,7 +279,7 @@
         });
 
         /* ==========================================================================
-           سیستم جابجایی تصادفی سکه‌ها
+           FLYING COINS
            ========================================================================== */
         const coinsElements = document.querySelectorAll('.game-coin');
         const playground = document.getElementById('game-playground');
@@ -313,7 +316,7 @@
         };
 
         /* ==========================================================================
-           سیستم ماینینگ خودکار هوشمند
+           AUTO MINING SYSTEM
            ========================================================================== */
         window.toggleMining = async function() {
             const nextState = !isMiningActive;
@@ -382,7 +385,7 @@
         setTimeout(checkOfflineMining, 2000);
 
         /* ==========================================================================
-           صندوقچه جایزه ۲۴ ساعته
+           DAILY CHEST
            ========================================================================== */
         window.claimDailyChest = async function() {
             try {
@@ -402,7 +405,6 @@
                     showAlert("🎁 Reward Claimed!", "Success! 5,000 premium coins have been added to your balance.");
                 } else {
                     const timeLeft = oneDayMs - (now - lastClaim);
-                    
                     const hours = Math.floor(timeLeft / (1000 * 60 * 60));
                     const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
                     const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
@@ -412,14 +414,11 @@
                         `You have already claimed your daily reward. Please wait ${hours} hours, ${minutes} minutes, and ${seconds} seconds.`
                     );
                 }
-            } catch (e) { 
-                console.error(e); 
-                showAlert("Error", "Connection error. Please try again.");
-            }
+            } catch (e) { console.error(e); }
         };
 
         /* ==========================================================================
-           سیستم پاپ‌آپ‌ها
+           MODALS CONTROLLER
            ========================================================================== */
         const globalOverlay = document.getElementById('global-alert');
         window.showAlert = function(title, desc) {
@@ -490,4 +489,11 @@
             <h3 class="modal-title">Account Sign Out</h3>
             <p class="modal-desc">To access your dashboard later, you will need to enter your password again. Are you sure you want to sign out?</p>
             <div class="modal-btn-group">
-                <button class="btn-modal-secondary" onclick="
+                <button class="btn-modal-secondary" onclick="window.closeLogoutPrompt()">Cancel</button>
+                <button class="btn-modal-primary" onclick="window.confirmLogout()">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
