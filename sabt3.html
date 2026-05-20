@@ -28,6 +28,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            position: relative;
         }
 
         .glow-effect {
@@ -161,6 +162,57 @@
             font-weight: 500;
             text-align: center;
         }
+
+        /* ==========================================================================
+           MODAL PREMIUM DESIGN (اصلاح ساختار پیام تایید خروج لوکس)
+           ========================================================================== */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 100;
+            display: flex; justify-content: center; align-items: center;
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.show { opacity: 1; pointer-events: auto; }
+
+        .glass-modal {
+            width: 88%; max-width: 320px;
+            background: rgba(20, 21, 25, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 24px 20px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-title { font-size: 18px; font-weight: 700; margin-bottom: 12px; color: #ffffff; }
+        .modal-desc { font-size: 13px; color: #8a8d93; line-height: 1.6; margin-bottom: 24px; text-align: center; }
+
+        .modal-btn-group { 
+            display: flex; 
+            gap: 12px; 
+            width: 100%;
+        }
+
+        .btn-modal-primary {
+            flex: 1;
+            background: linear-gradient(135deg, #ff4757 0%, #cc2a36 100%);
+            border: none; padding: 14px; border-radius: 12px;
+            color: #ffffff; font-size: 13px; font-weight: 700; cursor: pointer;
+        }
+
+        .btn-modal-secondary {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12); padding: 14px; border-radius: 12px;
+            color: #ffffff; font-size: 13px; font-weight: 600; cursor: pointer;
+        }
     </style>
 
     <script type="module">
@@ -240,27 +292,30 @@
         }
 
         /* ==========================================================================
-           سیستم هشدار خروج و حذف قطعی ردیف موقت از فایربیس
+           سیستم باز کردن و بستن پاپ آپ شیک خروج
            ========================================================================== */
-        window.handleExitAndDelete = async function() {
+        const exitModal = document.getElementById('exit-confirm-modal');
+        
+        window.triggerExitPrompt = function() {
+            document.getElementById('exit-confirm-modal').classList.add('show');
+        };
+
+        window.closeExitPrompt = function() {
+            document.getElementById('exit-confirm-modal').classList.remove('show');
+        };
+
+        window.confirmExitAndDelete = async function() {
             const pendingPhone = localStorage.getItem('user_pending_phone');
-            const btnExit = document.getElementById('btn-exit');
             const errBox = document.getElementById('err-box');
+            const btnModalPrimary = document.querySelector('.btn-modal-primary');
 
             if (!pendingPhone) {
                 window.location.href = 'index.html';
                 return;
             }
 
-            const message = "If you exit, your registration progress will be deleted and you must verify your phone number and get a new code from the bot again. Are you sure?";
-            const userConfirmed = confirm(message);
-
-            if (!userConfirmed) {
-                return;
-            }
-
-            btnExit.innerText = "Deleting account... ⏳";
-            btnExit.style.pointerEvents = "none";
+            btnModalPrimary.innerText = "Deleting... ⏳";
+            btnModalPrimary.style.pointerEvents = "none";
 
             const safePhoneKey = pendingPhone.replace(/[.#$[\]]/g, "");
 
@@ -273,8 +328,9 @@
                 window.location.href = 'index.html';
             } catch (error) {
                 console.error(error);
-                btnExit.innerText = "Cancel & Exit ❌";
-                btnExit.style.pointerEvents = "auto";
+                btnModalPrimary.innerText = "Yes, Exit";
+                btnModalPrimary.style.pointerEvents = "auto";
+                closeExitPrompt();
                 errBox.innerText = "Connection error. Could not delete session.";
                 errBox.style.display = "block";
             }
@@ -301,9 +357,20 @@
             Complete & Enter 🚀
         </button>
 
-        <button id="btn-exit" class="btn-exit-delete" onclick="window.handleExitAndDelete()">
+        <button id="btn-exit" class="btn-exit-delete" onclick="window.triggerExitPrompt()">
             Cancel & Exit ❌
         </button>
+    </div>
+
+    <div id="exit-confirm-modal" class="modal-overlay">
+        <div class="glass-modal">
+            <h3 class="modal-title">Cancel Progress?</h3>
+            <p class="modal-desc">If you exit, your registration progress will be deleted and you must verify your phone number and get a new code from the bot again. Are you sure?</p>
+            <div class="modal-btn-group">
+                <button class="btn-modal-secondary" onclick="window.closeExitPrompt()">Stay</button>
+                <button class="btn-modal-primary" onclick="window.confirmExitAndDelete()">Yes, Exit</button>
+            </div>
+        </div>
     </div>
 
 </body>
