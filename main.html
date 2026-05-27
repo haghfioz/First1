@@ -54,7 +54,7 @@
             display: flex; flex-direction: column; gap: 4px;
         }
 
-        .user-phone { font-size: 14px; font-weight: 700; color: #ffffff; }
+        .user-name { font-size: 14px; font-weight: 700; color: #ffffff; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
         .btn-logout {
             background: none; border: none;
@@ -121,12 +121,12 @@
         }
 
         /* ==========================================================================
-           CONTROLS FOOTER (اصلاح منوی پایینی برای جلوگیری از بیرون زدگی)
+           CONTROLS FOOTER
            ========================================================================== */
         .controls-footer {
             position: relative; z-index: 10;
             display: flex; justify-content: space-between; align-items: center;
-            padding: 10px 20px 25px 20px; /* پدینگ استاندارد و ایمن برای موبایل */
+            padding: 10px 20px 25px 20px;
             background: transparent;
         }
 
@@ -163,7 +163,7 @@
         .btn-chest:active { background: rgba(255, 255, 255, 0.08); }
 
         /* ==========================================================================
-           MODALS & ALERTS (اصلاح دکمه‌ها و تضمین نمایش پاپ‌آپ)
+           MODALS & ALERTS
            ========================================================================== */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
@@ -180,7 +180,7 @@
 
         .glass-modal {
             width: 88%; max-width: 320px;
-            background: rgba(20, 21, 25, 0.95); /* رنگ تیره‌تر برای خوانایی دکمه‌ها */
+            background: rgba(20, 21, 25, 0.95);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 24px;
             padding: 24px 20px;
@@ -216,8 +216,9 @@
     </style>
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
-        import { getDatabase, ref, get, update, onValue } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getDatabase, ref, get, update, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDQ7-AJGgjhxFxMdgoPQKiNt0YanP0ryHo",
@@ -230,28 +231,33 @@
         };
 
         const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
         const database = getDatabase(app);
 
-        let userPhone = localStorage.getItem('user_logged_in_phone');
-        
-        if (!userPhone) {
-            window.location.href = 'index.html';
-        }
-
-        const safePhoneKey = userPhone.replace(/[.#$[\]]/g, "");
-        const userRef = ref(database, 'users/' + safePhoneKey);
-
+        let currentUser = null;
+        let userRef = null;
         let currentCoins = 0;
         let isMiningActive = false;
         let miningInterval = null;
 
-        function maskPhoneNumber(phone) {
-            if(phone.length > 7) {
-                return phone.substring(0, 4) + "***" + phone.substring(phone.length - 4);
+        // تایید اصالت و سشن کاربر از طریق سیستم مدیریت اکانت گوگل (Firebase Auth)
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                // نمایش نام گوگل کاربر در هدر دیتابورد
+                document.getElementById('display-name').innerText = user.displayName || "Player";
+                
+                // استفاده از آیدی گوگل کاربر (UID) به عنوان مرجع اصلی در دیتابیس فایربیس
+                userRef = ref(database, 'users/' + user.uid);
+                
+                // فعال‌سازی همگام‌سازی زنده با فایربیس
+                initRealtimeSync();
+                setTimeout(checkOfflineMining, 2000);
+            } else {
+                // اگر کاربر لاگین نبود، او را به صفحه ورود برمی‌گرداند
+                window.location.href = 'index.html';
             }
-            return phone;
-        }
-        document.getElementById('display-phone').innerText = maskPhoneNumber(userPhone);
+        });
 
         /* ==========================================================================
            ANTI-BACK LOCK
@@ -262,26 +268,29 @@
         };
 
         /* ==========================================================================
-           REALTIME DB SYNC
+           REALTIME DB SYNC (اصلاح‌شده برای اتصال با آیدی گوگل)
            ========================================================================== */
-        onValue(userRef, (snapshot) => {
-            if (snapshot.exists()) {
-                const data = snapshot.val();
-                currentCoins = data.coins || 0;
-                document.getElementById('coin-display').innerText = currentCoins.toLocaleString();
-                
-                const firebaseMining = data.mining_status === 'on';
-                if(firebaseMining !== isMiningActive) {
-                    isMiningActive = firebaseMining;
-                    updateMiningUI();
+        const coinsElements = document.querySelectorAll('.game-coin');
+
+        function initRealtimeSync() {
+            onValue(userRef, (snapshot) => {
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    currentCoins = data.coins || 0;
+                    document.getElementById('coin-display').innerText = currentCoins.toLocaleString();
+                    
+                    const firebaseMining = data.mining_status === 'on';
+                    if(firebaseMining !== isMiningActive) {
+                        isMiningActive = firebaseMining;
+                        updateMiningUI();
+                    }
                 }
-            }
-        });
+            });
+        }
 
         /* ==========================================================================
            FLYING COINS
            ========================================================================== */
-        const coinsElements = document.querySelectorAll('.game-coin');
         const playground = document.getElementById('game-playground');
 
         function moveCoins() {
@@ -311,7 +320,9 @@
             setTimeout(() => { element.style.transform = "scale(1)"; }, 100);
 
             try {
-                await update(userRef, { coins: currentCoins + 5 });
+                if (userRef) {
+                    await update(userRef, { coins: currentCoins + 5 });
+                }
             } catch (e) { console.error(e); }
         };
 
@@ -319,6 +330,7 @@
            AUTO MINING SYSTEM
            ========================================================================== */
         window.toggleMining = async function() {
+            if (!userRef) return;
             const nextState = !isMiningActive;
             const now = Date.now();
 
@@ -350,7 +362,7 @@
         function startLiveMiningTimer() {
             if(miningInterval) clearInterval(miningInterval);
             miningInterval = setInterval(async () => {
-                if (!isMiningActive) return;
+                if (!isMiningActive || !userRef) return;
                 const now = Date.now();
                 await update(userRef, {
                     coins: currentCoins + 500,
@@ -360,6 +372,7 @@
         }
 
         async function checkOfflineMining() {
+            if (!userRef) return;
             try {
                 const snapshot = await get(userRef);
                 if(snapshot.exists()) {
@@ -381,13 +394,12 @@
                 }
             } catch(e) { console.error(e); }
         }
-        
-        setTimeout(checkOfflineMining, 2000);
 
         /* ==========================================================================
            DAILY CHEST
            ========================================================================== */
         window.claimDailyChest = async function() {
+            if (!userRef) return;
             try {
                 const snapshot = await get(userRef);
                 if (!snapshot.exists()) return;
@@ -431,9 +443,15 @@
         const logoutOverlay = document.getElementById('logout-alert');
         window.triggerLogoutPrompt = function() { logoutOverlay.classList.add('show'); };
         window.closeLogoutPrompt = function() { logoutOverlay.classList.remove('show'); };
-        window.confirmLogout = function() {
-            localStorage.removeItem('user_logged_in_phone');
-            window.location.href = 'index.html';
+        
+        // اصلاح بخش خروج از سیستم متناسب با هسته رسمی گوگل
+        window.confirmLogout = async function() {
+            try {
+                await signOut(auth);
+                window.location.href = 'index.html';
+            } catch (error) {
+                console.error("Signout Error:", error);
+            }
         };
     </script>
 </head>
@@ -443,7 +461,7 @@
 
     <header>
         <div class="user-info">
-            <span id="display-phone" class="user-phone">+98912***3456</span>
+            <span id="display-name" class="user-name">Loading...</span>
             <button class="btn-logout" onclick="window.triggerLogoutPrompt()">Logout 🚪</button>
         </div>
         <div class="coin-counter-box">
@@ -479,21 +497,4 @@
     <div id="global-alert" class="modal-overlay">
         <div class="glass-modal">
             <h3 id="alert-title" class="modal-title">Notification</h3>
-            <p id="alert-desc" class="modal-desc">Message details...</p>
-            <button class="btn-modal-primary" style="width:100%" onclick="window.closeAlert()">Got it</button>
-        </div>
-    </div>
-
-    <div id="logout-alert" class="modal-overlay">
-        <div class="glass-modal">
-            <h3 class="modal-title">Account Sign Out</h3>
-            <p class="modal-desc">To access your dashboard later, you will need to enter your password again. Are you sure you want to sign out?</p>
-            <div class="modal-btn-group">
-                <button class="btn-modal-secondary" onclick="window.closeLogoutPrompt()">Cancel</button>
-                <button class="btn-modal-primary" onclick="window.confirmLogout()">Confirm</button>
-            </div>
-        </div>
-    </div>
-
-</body>
-</html>
+            <p id="alert-desc" class=
