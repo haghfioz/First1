@@ -8,10 +8,9 @@
     
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getAuth, signInWithRedirect, getRedirectResult, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-        // اطلاعات فایربیس شما
         const firebaseConfig = {
             apiKey: "AIzaSyDQ7-AJGgjhxFxMdgoPQKiNt0YanP0ryHo",
             authDomain: "haghfiozfirst1.firebaseapp.com",
@@ -22,67 +21,65 @@
             appId: "1:477284748293:web:b5ecca49f844662c7fa06c"
         };
 
-        // راه‌اندازی فایربیس
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const database = getDatabase(app);
         const provider = new GoogleAuthProvider();
 
+        // حل مشکل دامین با متد استاندارد Redirect به جای Popup برای محیط‌های موبایل و تلگرام
         async function handleRegister() {
             const regBtn = document.getElementById('regBtn');
-            const btnText = document.getElementById('btnText');
-            const btnLoader = document.getElementById('btnLoader');
-
-            // تغییر دکمه به حالت لودینگ
             regBtn.style.pointerEvents = 'none';
-            btnText.style.opacity = '0.5';
-            btnLoader.style.display = 'block';
+            document.getElementById('btnText').style.opacity = '0.5';
+            document.getElementById('btnLoader').style.display = 'block';
 
             try {
-                // ۱. باز کردن پاپ‌آپ گوگل
-                const result = await signInWithPopup(auth, provider);
-                const user = result.user;
-
-                // ۲. بررسی تکراری نبودن اکانت در Realtime Database
-                const userRef = ref(database, 'users/' + user.uid);
-                const snapshot = await get(userRef);
-
-                if (snapshot.exists()) {
-                    // اگر اکانت از قبل وجود داشت
-                    showAlert("Account Exists", "This Google account is already registered. Please go back and login instead.");
-                    
-                    // بازگرداندن دکمه به حالت عادی
-                    regBtn.style.pointerEvents = 'auto';
-                    btnText.style.opacity = '1';
-                    btnLoader.style.display = 'none';
-                } else {
-                    // ۳. اکانت جدید است -> ذخیره اطلاعات با ساختار درخواستی شما
-                    await set(userRef, {
-                        uid: user.uid,
-                        email: user.email, // ذخیره کامل جی‌میل حاوی @
-                        coins: 0           // تنظیم سکه روی صفر
-                    });
-
-                    // ۴. هدایت به صفحه بازی جدید
-                    window.location.href = "game.html";
-                }
-
+                // هدایت امن به دامین خود فایربیس برای لاگین
+                await signInWithRedirect(auth, provider);
             } catch (error) {
-                console.error("Registration Error:", error);
-                showAlert("Error", "Registration failed! Please try again.");
-                
-                regBtn.style.pointerEvents = 'auto';
-                btnText.style.opacity = '1';
-                btnLoader.style.display = 'none';
+                console.error(error);
+                showAlert("Error", "Initialization failed. Please refresh.");
+                resetButton();
             }
         }
 
-        // متصل کردن تابع به دکمه و مدیریت پاپ‌آپ‌ها
-        window.addEventListener('DOMContentLoaded', () => {
+        // پردازش نتیجه بازگشت از گوگل بعد از ریدایرکت
+        window.addEventListener('DOMContentLoaded', async () => {
             document.getElementById('regBtn').addEventListener('click', handleRegister);
+
+            try {
+                const result = await getRedirectResult(auth);
+                if (result && result.user) {
+                    const user = result.user;
+                    const userRef = ref(database, 'users/' + user.uid);
+                    const snapshot = await get(userRef);
+
+                    if (snapshot.exists()) {
+                        showAlert("Account Exists", "This Google account is already registered. Please login instead.");
+                        resetButton();
+                    } else {
+                        await set(userRef, {
+                            uid: user.uid,
+                            email: user.email,
+                            coins: 0
+                        });
+                        window.location.href = "game.html";
+                    }
+                }
+            } catch (error) {
+                console.error("Redirect Result Error:", error);
+                showAlert("Error", "Authentication failed or cancelled.");
+                resetButton();
+            }
         });
 
-        // سیستم مدیریت پاپ‌آپ شیک اختصاصی
+        function resetButton() {
+            const regBtn = document.getElementById('regBtn');
+            regBtn.style.pointerEvents = 'auto';
+            document.getElementById('btnText').style.opacity = '1';
+            document.getElementById('btnLoader').style.display = 'none';
+        }
+
         window.showAlert = function(title, desc) {
             document.getElementById('alert-title').innerText = title;
             document.getElementById('alert-desc').innerText = desc;
@@ -94,127 +91,26 @@
     </script>
 
     <style>
-        /* ==========================================================================
-           RESET & BASE STYLES (تم یکدست پروژه)
-           ========================================================================= */
-        * {
-            margin: 0; padding: 0;
-            box-sizing: border-box;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            -webkit-tap-highlight-color: transparent;
-            user-select: none;
-        }
-
-        body {
-            background: linear-gradient(135deg, #070a13 0%, #0f1123 50%, #1b0b24 100%);
-            height: 100vh; width: 100vw;
-            display: flex; justify-content: center; align-items: center;
-            overflow: hidden; position: relative;
-        }
-
-        .bg-glow {
-            position: absolute;
-            width: 380px; height: 380px; border-radius: 50%;
-            background: radial-gradient(circle, rgba(168, 85, 247, 0.1) 0%, rgba(0, 0, 0, 0) 70%);
-            top: 50%; left: 50%; transform: translate(-50%, -50%);
-            z-index: 0; pointer-events: none;
-        }
-
-        /* کارت شیشه‌ای ثبت‌نام */
-        .register-container {
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            backdrop-filter: blur(25px);
-            -webkit-backdrop-filter: blur(25px);
-            padding: 45px 30px; border-radius: 32px;
-            width: 90%; max-width: 400px;
-            text-align: center;
-            box-shadow: 0 30px 70px rgba(0, 0, 0, 0.5);
-            z-index: 1;
-        }
-
-        .title {
-            font-size: 26px; font-weight: 700; color: #fff; margin-bottom: 8px;
-        }
-
-        .subtitle {
-            color: #64748b; font-size: 13px; margin-bottom: 40px; line-height: 1.5;
-        }
-
-        /* دکمه گوگل */
-        .google-btn {
-            width: 100%;
-            background: #ffffff;
-            border: none;
-            padding: 16px 24px; border-radius: 16px;
-            color: #0f172a; font-size: 15px; font-weight: 600;
-            display: flex; align-items: center; justify-content: center; gap: 12px;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            box-shadow: 0 4px 20px rgba(255, 255, 255, 0.1);
-        }
-
-        .google-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(255, 255, 255, 0.2);
-            background: #f8fafc;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; user-select: none; }
+        body { background: linear-gradient(135deg, #070a13 0%, #0f1123 50%, #1b0b24 100%); height: 100vh; width: 100vw; display: flex; justify-content: center; align-items: center; overflow: hidden; position: relative; }
+        .bg-glow { position: absolute; width: 380px; height: 380px; border-radius: 50%; background: radial-gradient(circle, rgba(168, 85, 247, 0.1) 0%, rgba(0, 0, 0, 0) 70%); top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 0; pointer-events: none; }
+        .register-container { background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.06); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); padding: 45px 30px; border-radius: 32px; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 30px 70px rgba(0, 0, 0, 0.5); z-index: 1; }
+        .title { font-size: 26px; font-weight: 700; color: #fff; margin-bottom: 8px; }
+        .subtitle { color: #64748b; font-size: 13px; margin-bottom: 40px; line-height: 1.5; }
+        .google-btn { width: 100%; background: #ffffff; border: none; padding: 16px 24px; border-radius: 16px; color: #0f172a; font-size: 15px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 12px; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); position: relative; box-shadow: 0 4px 20px rgba(255, 255, 255, 0.1); }
+        .google-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(255, 255, 255, 0.2); background: #f8fafc; }
         .google-btn:active { transform: translateY(1px); }
-
         .google-icon { width: 22px; height: 22px; }
-
-        /* لودینگ دکمه */
-        .loader {
-            display: none; width: 20px; height: 20px;
-            border: 2px solid rgba(15, 23, 42, 0.2); border-radius: 50%;
-            border-top-color: #0f172a;
-            animation: spin 0.8s linear infinite;
-            position: absolute; right: 24px;
-        }
-
+        .loader { display: none; width: 20px; height: 20px; border: 2px solid rgba(15, 23, 42, 0.2); border-radius: 50%; border-top-color: #0f172a; animation: spin 0.8s linear infinite; position: absolute; right: 24px; }
         @keyframes spin { to { transform: rotate(360deg); } }
-
-        /* دکمه بازگشت */
-        .back-link {
-            display: inline-block; margin-top: 30px;
-            color: #94a3b8; font-size: 13px; font-weight: 500;
-            text-decoration: none; transition: color 0.2s;
-        }
+        .back-link { display: inline-block; margin-top: 30px; color: #94a3b8; font-size: 13px; font-weight: 500; text-decoration: none; transition: color 0.2s; }
         .back-link:hover { color: #fff; }
-
-        /* ==========================================================================
-           MODAL SYSTEM (پاپ‌آپ شیک اخطار اکانت تکراری)
-           ========================================================================== */
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px); z-index: 100;
-            display: flex; justify-content: center; align-items: center;
-            opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
-        }
-
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 100; display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
         .modal-overlay.show { opacity: 1; pointer-events: auto; }
-
-        .glass-modal {
-            width: 88%; max-width: 330px;
-            background: rgba(23, 24, 30, 0.95);
-            border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 24px;
-            padding: 26px 22px; text-align: center;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.7);
-        }
-
+        .glass-modal { width: 88%; max-width: 330px; background: rgba(23, 24, 30, 0.95); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 24px; padding: 26px 22px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.7); }
         .modal-title { font-size: 18px; font-weight: 700; margin-bottom: 12px; color: #ff4757; }
         .modal-desc { font-size: 13px; color: #94a3b8; line-height: 1.6; margin-bottom: 24px; }
-
-        .btn-modal-primary {
-            width: 100%; background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%);
-            border: none; padding: 14px; border-radius: 12px;
-            color: #ffffff; font-size: 13px; font-weight: 700; cursor: pointer;
-            transition: opacity 0.2s;
-        }
-        .btn-modal-primary:hover { filter: brightness(1.1); }
+        .btn-modal-primary { width: 100%; background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%); border: none; padding: 14px; border-radius: 12px; color: #ffffff; font-size: 13px; font-weight: 700; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -223,7 +119,7 @@
 
     <div class="register-container">
         <div class="title">Create Account</div>
-        <div class="subtitle">Sign up with your Google account to start your journey. Your starting balance will be 0 coins.</div>
+        <div class="subtitle">Sign up securely using Google Identity services. Your starting balance will be 0.</div>
         
         <button class="google-btn" id="regBtn">
             <svg class="google-icon" viewBox="0 0 24 24">
