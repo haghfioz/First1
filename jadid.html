@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>[RE] AI Mini-Game - Register</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        // اطلاعات فایربیس شما
+        const firebaseConfig = {
+            apiKey: "AIzaSyDQ7-AJGgjhxFxMdgoPQKiNt0YanP0ryHo",
+            authDomain: "haghfiozfirst1.firebaseapp.com",
+            databaseURL: "https://haghfiozfirst1-default-rtdb.firebaseio.com",
+            projectId: "haghfiozfirst1",
+            storageBucket: "haghfiozfirst1.firebasestorage.app",
+            messagingSenderId: "477284748293",
+            appId: "1:477284748293:web:b5ecca49f844662c7fa06c"
+        };
+
+        // راه‌اندازی فایربیس
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const database = getDatabase(app);
+        const provider = new GoogleAuthProvider();
+
+        async function handleRegister() {
+            const regBtn = document.getElementById('regBtn');
+            const btnText = document.getElementById('btnText');
+            const btnLoader = document.getElementById('btnLoader');
+
+            // تغییر دکمه به حالت لودینگ
+            regBtn.style.pointerEvents = 'none';
+            btnText.style.opacity = '0.5';
+            btnLoader.style.display = 'block';
+
+            try {
+                // ۱. باز کردن پاپ‌آپ گوگل
+                const result = await signInWithPopup(auth, provider);
+                const user = result.user;
+
+                // ۲. بررسی تکراری نبودن اکانت در Realtime Database
+                const userRef = ref(database, 'users/' + user.uid);
+                const snapshot = await get(userRef);
+
+                if (snapshot.exists()) {
+                    // اگر اکانت از قبل وجود داشت
+                    showAlert("Account Exists", "This Google account is already registered. Please go back and login instead.");
+                    
+                    // بازگرداندن دکمه به حالت عادی
+                    regBtn.style.pointerEvents = 'auto';
+                    btnText.style.opacity = '1';
+                    btnLoader.style.display = 'none';
+                } else {
+                    // ۳. اکانت جدید است -> ذخیره اطلاعات با ساختار درخواستی شما
+                    await set(userRef, {
+                        uid: user.uid,
+                        email: user.email, // ذخیره کامل جی‌میل حاوی @
+                        coins: 0           // تنظیم سکه روی صفر
+                    });
+
+                    // ۴. هدایت به صفحه بازی جدید
+                    window.location.href = "game.html";
+                }
+
+            } catch (error) {
+                console.error("Registration Error:", error);
+                showAlert("Error", "Registration failed! Please try again.");
+                
+                regBtn.style.pointerEvents = 'auto';
+                btnText.style.opacity = '1';
+                btnLoader.style.display = 'none';
+            }
+        }
+
+        // متصل کردن تابع به دکمه و مدیریت پاپ‌آپ‌ها
+        window.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('regBtn').addEventListener('click', handleRegister);
+        });
+
+        // سیستم مدیریت پاپ‌آپ شیک اختصاصی
+        window.showAlert = function(title, desc) {
+            document.getElementById('alert-title').innerText = title;
+            document.getElementById('alert-desc').innerText = desc;
+            document.getElementById('global-alert').classList.add('show');
+        };
+        window.closeAlert = function() {
+            document.getElementById('global-alert').classList.remove('show');
+        };
+    </script>
+
+    <style>
+        /* ==========================================================================
+           RESET & BASE STYLES (تم یکدست پروژه)
+           ========================================================================= */
+        * {
+            margin: 0; padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+
+        body {
+            background: linear-gradient(135deg, #070a13 0%, #0f1123 50%, #1b0b24 100%);
+            height: 100vh; width: 100vw;
+            display: flex; justify-content: center; align-items: center;
+            overflow: hidden; position: relative;
+        }
+
+        .bg-glow {
+            position: absolute;
+            width: 380px; height: 380px; border-radius: 50%;
+            background: radial-gradient(circle, rgba(168, 85, 247, 0.1) 0%, rgba(0, 0, 0, 0) 70%);
+            top: 50%; left: 50%; transform: translate(-50%, -50%);
+            z-index: 0; pointer-events: none;
+        }
+
+        /* کارت شیشه‌ای ثبت‌نام */
+        .register-container {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            padding: 45px 30px; border-radius: 32px;
+            width: 90%; max-width: 400px;
+            text-align: center;
+            box-shadow: 0 30px 70px rgba(0, 0, 0, 0.5);
+            z-index: 1;
+        }
+
+        .title {
+            font-size: 26px; font-weight: 700; color: #fff; margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: #64748b; font-size: 13px; margin-bottom: 40px; line-height: 1.5;
+        }
+
+        /* دکمه گوگل */
+        .google-btn {
+            width: 100%;
+            background: #ffffff;
+            border: none;
+            padding: 16px 24px; border-radius: 16px;
+            color: #0f172a; font-size: 15px; font-weight: 600;
+            display: flex; align-items: center; justify-content: center; gap: 12px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            box-shadow: 0 4px 20px rgba(255, 255, 255, 0.1);
+        }
+
+        .google-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 255, 255, 0.2);
+            background: #f8fafc;
+        }
+
+        .google-btn:active { transform: translateY(1px); }
+
+        .google-icon { width: 22px; height: 22px; }
+
+        /* لودینگ دکمه */
+        .loader {
+            display: none; width: 20px; height: 20px;
+            border: 2px solid rgba(15, 23, 42, 0.2); border-radius: 50%;
+            border-top-color: #0f172a;
+            animation: spin 0.8s linear infinite;
+            position: absolute; right: 24px;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* دکمه بازگشت */
+        .back-link {
+            display: inline-block; margin-top: 30px;
+            color: #94a3b8; font-size: 13px; font-weight: 500;
+            text-decoration: none; transition: color 0.2s;
+        }
+        .back-link:hover { color: #fff; }
+
+        /* ==========================================================================
+           MODAL SYSTEM (پاپ‌آپ شیک اخطار اکانت تکراری)
+           ========================================================================== */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px); z-index: 100;
+            display: flex; justify-content: center; align-items: center;
+            opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.show { opacity: 1; pointer-events: auto; }
+
+        .glass-modal {
+            width: 88%; max-width: 330px;
+            background: rgba(23, 24, 30, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 24px;
+            padding: 26px 22px; text-align: center;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.7);
+        }
+
+        .modal-title { font-size: 18px; font-weight: 700; margin-bottom: 12px; color: #ff4757; }
+        .modal-desc { font-size: 13px; color: #94a3b8; line-height: 1.6; margin-bottom: 24px; }
+
+        .btn-modal-primary {
+            width: 100%; background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%);
+            border: none; padding: 14px; border-radius: 12px;
+            color: #ffffff; font-size: 13px; font-weight: 700; cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        .btn-modal-primary:hover { filter: brightness(1.1); }
+    </style>
+</head>
+<body>
+
+    <div class="bg-glow"></div>
+
+    <div class="register-container">
+        <div class="title">Create Account</div>
+        <div class="subtitle">Sign up with your Google account to start your journey. Your starting balance will be 0 coins.</div>
+        
+        <button class="google-btn" id="regBtn">
+            <svg class="google-icon" viewBox="0 0 24 24">
+                <path fill="#EA4335" d="M12.24 10.285V14.4h6.887c-.275 1.565-1.88 4.604-6.887 4.604-4.33 0-7.866-3.577-7.866-8s3.536-8 7.866-8c2.46 0 4.105 1.025 5.047 1.926l3.227-3.227C18.43 1.417 15.618 0 12.24 0 5.58 0 0 5.58 0 12.24s5.58 12.24 12.24 12.24c6.96 0 11.57-4.894 11.57-11.79 0-.795-.085-1.4-.183-1.926H12.24z"/>
+            </svg>
+            <span id="btnText">Sign up with Google</span>
+            <div class="loader" id="btnLoader"></div>
+        </button>
+
+        <a href="index.html" class="back-link">← Back to Main Menu</a>
+    </div>
+
+    <div id="global-alert" class="modal-overlay">
+        <div class="glass-modal">
+            <h3 id="alert-title" class="modal-title">Notification</h3>
+            <p id="alert-desc" class="modal-desc">Message details...</p>
+            <button class="btn-modal-primary" onclick="window.closeAlert()">Got it</button>
+        </div>
+    </div>
+
+</body>
+</html>
